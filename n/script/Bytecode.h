@@ -115,6 +115,7 @@ union Primitive
 
 static_assert(sizeof(BytecodeInstruction) == 8, "BytecodeInstruction should be 64 bits");
 static_assert(sizeof(Primitive) == 8, "Primitive should be 64 bits");
+static_assert(sizeof(double) == sizeof(int64), "Primitive should be 64 bits");
 
 }
 }

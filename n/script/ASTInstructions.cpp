@@ -80,12 +80,29 @@ WTInstruction *ASTFunctionDeclaration::toWorkTree(WTBuilder &builder) const {
 	return 0;
 }
 
+static WTExpression *cast(WTExpression *expr, WTVariableType *type, uint reg) {
+	return expr->expressionType == type ? expr : new WTCast(expr, type, reg);
+}
+
+static WTExpression *cast(WTExpression *expr, WTVariableType *type, uint reg, WTBuilder &builder, TokenPosition position) {
+	if(!builder.getTypeSystem()->assign(type, expr->expressionType)) {
+		throw ValidationErrorException("Assignation of incompatible types", position);
+	}
+	return cast(expr, type, reg);
+}
+
 WTInstruction *ASTReturn::toWorkTree(WTBuilder &builder) const {
-	if(!builder.getCurrentFunction()) {
+	WTFunction *function = builder.getCurrentFunction();
+	if(!function) {
 		throw ValidationErrorException("return statement outside function", position);
 	}
 	#warning function may not have a return statement
-	return new WTReturn(expression->toWorkTree(builder, builder.allocRegister()));
+
+	builder.enterScope();
+	N_SCOPE(builder.leaveScope());
+
+	uint reg = builder.allocRegister();
+	return new WTReturn(cast(expression->toWorkTree(builder, reg), function->returnType, reg, builder, position));
 }
 
 
@@ -124,8 +141,12 @@ void ASTFunctionDeclaration::lookupFunctions(WTBuilder &builder) const {
 	}
 	builder.leaveFunction();
 
-	#warning function always return int
-	builder.declareFunc(name, arg, builder.getTypeSystem()->getIntType(), position);
+	WTVariableType *ret = builder.getTypeSystem()->getType(retTypeName);
+	if(!ret) {
+		throw ValidationErrorException("\"" + retTypeName + "\" was not declared in this scope", position);
+	}
+
+	builder.declareFunc(name, arg, ret, position);
 }
 
 void ASTReturn::lookupFunctions(WTBuilder &) const {

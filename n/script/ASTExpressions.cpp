@@ -20,18 +20,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace n {
 namespace script {
 
-WTVariableType *notNull(WTVariableType *t, const TokenPosition &p) {
+static WTVariableType *notNull(WTVariableType *t, const TokenPosition &p) {
 	if(!t) {
 		throw ValidationErrorException("Operation on incompatible types", p);
 	}
 	return t;
 }
 
-WTExpression *cast(WTExpression *expr, WTVariableType *type, uint reg) {
+static WTExpression *cast(WTExpression *expr, WTVariableType *type, uint reg) {
 	return expr->expressionType == type ? expr : new WTCast(expr, type, reg);
 }
 
-WTExpression *cast(WTExpression *expr, WTVariableType *type, uint reg, WTBuilder &builder, TokenPosition position) {
+static WTExpression *cast(WTExpression *expr, WTVariableType *type, uint reg, WTBuilder &builder, TokenPosition position) {
 	if(!builder.getTypeSystem()->assign(type, expr->expressionType)) {
 		throw ValidationErrorException("Assignation of incompatible types", position);
 	}

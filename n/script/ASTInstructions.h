@@ -110,10 +110,11 @@ struct ASTExprInstruction : public ASTInstruction
 
 struct ASTFunctionDeclaration : public ASTInstruction
 {
-	ASTFunctionDeclaration(const core::String &n, const core::Array<ASTDeclaration *> &a, ASTInstruction *bod) : ASTInstruction(bod->position), name(n), args(a), body(bod) {
+	ASTFunctionDeclaration(const core::String &n, const core::String &tn, const core::Array<ASTDeclaration *> &a, ASTInstruction *bod) : ASTInstruction(bod->position), name(n), retTypeName(tn), args(a), body(bod) {
 	}
 
 	const core::String name;
+	const core::String retTypeName;
 	const core::Array<ASTDeclaration *> args;
 	const ASTInstruction *body;
 

@@ -123,7 +123,7 @@ void Machine::run(const BytecodeInstruction *bcode, Primitive *mem, Primitive *r
 			break;
 
 			case Bytecode::ToFloat:
-				m->integer = mem[i->src[0]].real;
+				m->real = mem[i->src[0]].integer;
 			break;
 
 			case Bytecode::Jump:

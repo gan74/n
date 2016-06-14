@@ -24,7 +24,7 @@ int fib(volatile int a) {
 
 
 int main(int, char **) {
-	core::String code = "def fib(a:Float) = {"
+	core::String code = "def fib(a:Int):Float = {"
 						"if(a < 1) return 1;"
 						"return fib(a - 1) + fib(a - 2);"
 						"}"
@@ -68,7 +68,7 @@ int main(int, char **) {
 		double time = timer.reset();
 		int cret = fib(32);
 		double ctime = timer.reset();
-		std::cout << std::endl << "return " << ret.integer << " expected " << cret << std::endl << "eval = " << time * 1000 << "ms (vs " << ctime * 1000 << "ms)" << std::endl << std::endl;
+		std::cout << std::endl << "return " << ret.real << " expected " << cret << std::endl << "eval = " << time * 1000 << "ms (vs " << ctime * 1000 << "ms)" << std::endl << std::endl;
 	} catch(SynthaxErrorException &e) {
 		std::cerr << e.what(code) << std::endl;
 	} catch(ValidationErrorException &e) {

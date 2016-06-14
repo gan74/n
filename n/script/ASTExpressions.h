@@ -34,6 +34,7 @@ struct ASTIdentifier : public ASTExpression
 	}
 
 	virtual WTExpression *toWorkTree(WTBuilder &builder, uint) const override;
+
 	//virtual void resolveFunctions(WTBuilder &) const override;
 };
 

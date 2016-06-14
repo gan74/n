@@ -96,10 +96,7 @@ static ASTExpression *parseSimpleExpr(core::Array<Token>::const_iterator &begin,
 
 		case Token::LeftPar: {
 			ASTExpression *expr = parseExpr(begin, end);
-			if((begin++)->type != Token::RightPar) {
-				delete expr;
-				expected(begin, Token::RightPar);
-			}
+			eat(begin, Token::RightPar);
 			return expr;
 		} break;
 
@@ -205,8 +202,12 @@ static ASTInstruction *parseInstruction(core::Array<Token>::const_iterator &begi
 			core::String name = begin->string;
 			begin++;
 			core::Array<ASTDeclaration *> args = parseArgDecls(begin, end);
+			eat(begin, Token::Colon);
+			expect(begin, {Token::Identifier});
+			core::String retType = begin->string;
+			begin++;
 			eat(begin, {Token::Assign});
-			return new ASTFunctionDeclaration(name, args, parseInstruction(begin, end));
+			return new ASTFunctionDeclaration(name, retType, args, parseInstruction(begin, end));
 		} break;
 
 		case Token::Return:
