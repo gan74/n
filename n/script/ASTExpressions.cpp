@@ -121,9 +121,10 @@ WTExpression *ASTCall::toWorkTree(WTBuilder &builder, uint workReg) const {
 	core::Array<WTExpression *> arg;
 	for(uint i = 0; i != args.size(); i++) {
 		builder.enterScope();
-		WTExpression *ex = cast(args[i]->toWorkTree(builder, builder.allocRegister()),
+		uint reg = builder.allocRegister();
+		WTExpression *ex = cast(args[i]->toWorkTree(builder, reg),
 								function->args[i]->expressionType,
-								builder.allocRegister(),
+								reg,
 								builder,
 								position);
 		arg << ex;

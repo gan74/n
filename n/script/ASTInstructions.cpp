@@ -18,11 +18,27 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace n {
 namespace script {
 
+static WTExpression *cast(WTExpression *expr, WTVariableType *type, uint reg) {
+	return expr->expressionType == type ? expr : new WTCast(expr, type, reg);
+}
+
+static WTExpression *cast(WTExpression *expr, WTVariableType *type, uint reg, WTBuilder &builder, TokenPosition position) {
+	if(!builder.getTypeSystem()->assign(type, expr->expressionType)) {
+		throw ValidationErrorException("Assignation of incompatible types", position);
+	}
+	return cast(expr, type, reg);
+}
+
 WTInstruction *ASTDeclaration::toWorkTree(WTBuilder &builder) const {
 	WTVariable *var = builder.declareVar(name, typeName, position);
 
 	builder.enterScope();
-	WTExpression *val = value ? value->toWorkTree(builder, var->registerIndex) : new WTInt(0, builder.getTypeSystem()->getType(typeName), var->registerIndex);
+	WTExpression *val = 0;
+	if(value) {
+		val = cast(value->toWorkTree(builder, var->registerIndex), var->expressionType, var->registerIndex, builder, position);
+	} else {
+		val = new WTInt(0, builder.getTypeSystem()->getIntType(), var->registerIndex);
+	}
 	builder.leaveScope();
 
 	return new WTExprInstr(new WTAssignation(var, val));
@@ -78,17 +94,6 @@ WTInstruction *ASTFunctionDeclaration::toWorkTree(WTBuilder &builder) const {
 	function->body = body->toWorkTree(builder);
 	builder.leaveFunction();
 	return 0;
-}
-
-static WTExpression *cast(WTExpression *expr, WTVariableType *type, uint reg) {
-	return expr->expressionType == type ? expr : new WTCast(expr, type, reg);
-}
-
-static WTExpression *cast(WTExpression *expr, WTVariableType *type, uint reg, WTBuilder &builder, TokenPosition position) {
-	if(!builder.getTypeSystem()->assign(type, expr->expressionType)) {
-		throw ValidationErrorException("Assignation of incompatible types", position);
-	}
-	return cast(expr, type, reg);
 }
 
 WTInstruction *ASTReturn::toWorkTree(WTBuilder &builder) const {
