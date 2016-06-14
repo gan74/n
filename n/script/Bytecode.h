@@ -40,7 +40,10 @@ enum Bytecode : uint16
 
 	Copy,
 
-	Set,
+	SetI,
+	SetF,
+
+	ToFloat,
 
 	Jump,
 	JumpZ,
@@ -52,7 +55,7 @@ enum Bytecode : uint16
 	Call,
 	PushArg,
 	Ret,
-	RetIm,
+	RetI,
 
 	Exit
 
@@ -62,31 +65,48 @@ struct BytecodeInstruction
 {
 	using RegisterType = uint16;
 	using DataType = int32;
+	using FloatDataType = float;
 
 	using UnsignedDataType = std::make_unsigned<DataType>::type;
 
 	Bytecode op;
-	uint16 registers[3];
+	RegisterType dst;
 
-	DataType &data() {
-		return *(reinterpret_cast<DataType *>(this) + 1);
+	union
+	{
+		RegisterType src[2];
+		DataType data;
+		UnsignedDataType udata;
+		FloatDataType fdata;
+	};
+
+	static_assert(2 * sizeof(RegisterType) == sizeof(DataType), "Invalid BytecodeInstruction data type");
+	static_assert(2 * sizeof(RegisterType) == sizeof(UnsignedDataType), "Invalid BytecodeInstruction data type");
+	static_assert(2 * sizeof(RegisterType) == sizeof(FloatDataType), "Invalid BytecodeInstruction data type");
+
+	BytecodeInstruction(Bytecode o, RegisterType a = 0, RegisterType b = 0, RegisterType c = 0) : op(o), dst(a), src{b, c} {
 	}
 
-	const DataType &data() const {
-		return *(reinterpret_cast<const DataType *>(this) + 1);
+	BytecodeInstruction(Bytecode o, RegisterType a, DataType d) : op(o), dst(a), data(d) {
 	}
 
-	UnsignedDataType &udata() {
-		return *(reinterpret_cast<UnsignedDataType *>(this) + 1);
+	BytecodeInstruction(Bytecode o, RegisterType a, UnsignedDataType d) : op(o), dst(a), udata(d) {
 	}
 
-	const UnsignedDataType &udata() const {
-		return *(reinterpret_cast<const UnsignedDataType *>(this) + 1);
+	BytecodeInstruction(Bytecode o, RegisterType a, FloatDataType d) : op(o), dst(a), fdata(d) {
 	}
+
 };
 
-static_assert(sizeof(BytecodeInstruction::RegisterType) + sizeof(Bytecode) == sizeof(BytecodeInstruction::DataType), "BytecodeInstruction DataType should be 2 * RegisterType");
+union Primitive
+{
+	int64 integer;
+	double real;
+	void *object;
+};
+
 static_assert(sizeof(BytecodeInstruction) == 8, "BytecodeInstruction should be 64 bits");
+static_assert(sizeof(Primitive) == 8, "Primitive should be 64 bits");
 
 }
 }

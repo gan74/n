@@ -20,12 +20,6 @@ namespace script {
 
 using BCI = BytecodeInstruction;
 
-template<typename T>
-BytecodeInstruction::RegisterType tr(T i) {
-	return i;
-}
-
-
 BytecodeAssembler::BytecodeAssembler() : index(0) {
 }
 
@@ -48,14 +42,6 @@ BytecodeAssembler &BytecodeAssembler::operator<<(BytecodeInstruction i) {
 }
 
 BytecodeAssembler &BytecodeAssembler::operator<<(const BytecodeAssembler &a) {
-	/*uint s = in.size();
-	in.setMinCapacity(s + a.in.size());
-	for(BytecodeInstruction i : a.in) {
-		if(i.op == Bytecode::Jump || i.op == Bytecode::JumpZ || i.op == Bytecode::JumpNZ) {
-			i.udata() += s;
-		}
-		ass(i);
-	}*/
 	if(index == in.size()) {
 		index += a.in.size();
 	}
@@ -74,114 +60,100 @@ BytecodeAssembler::Label BytecodeAssembler::end() const {
 
 
 BytecodeAssembler &BytecodeAssembler::nope() {
-	return ass(BCI{Bytecode::Nope, {0}});
+	return ass(BCI(Bytecode::Nope));
 }
 
 BytecodeAssembler &BytecodeAssembler::addI(RegisterType to, RegisterType a, RegisterType b) {
-	return ass(BCI{Bytecode::AddI, tr(to), tr(a), tr(b)});
+	return ass(BCI(Bytecode::AddI, to, a, b));
 }
 
 BytecodeAssembler &BytecodeAssembler::subI(RegisterType to, RegisterType a, RegisterType b) {
-	return ass(BCI{Bytecode::SubI, tr(to), tr(a), tr(b)});
+	return ass(BCI(Bytecode::SubI, to, a, b));
 }
 
 BytecodeAssembler &BytecodeAssembler::mulI(RegisterType to, RegisterType a, RegisterType b) {
-	return ass(BCI{Bytecode::MulI, tr(to), tr(a), tr(b)});
+	return ass(BCI(Bytecode::MulI, to, a, b));
 }
 
 BytecodeAssembler &BytecodeAssembler::divI(RegisterType to, RegisterType a, RegisterType b) {
-	return ass(BCI{Bytecode::DivI, tr(to), tr(a), tr(b)});
+	return ass(BCI(Bytecode::DivI, to, a, b));
 }
 
 BytecodeAssembler &BytecodeAssembler::notI(RegisterType to, RegisterType from) {
-	return ass(BCI{Bytecode::Not, tr(to), tr(from)});
+	return ass(BCI(Bytecode::Not, to, from));
 }
 
 BytecodeAssembler &BytecodeAssembler::equals(RegisterType to, RegisterType a, RegisterType b) {
-	return ass(BCI{Bytecode::Equals, tr(to), tr(a), tr(b)});
+	return ass(BCI(Bytecode::Equals, to, a, b));
 }
 
 BytecodeAssembler &BytecodeAssembler::notEq(RegisterType to, RegisterType a, RegisterType b) {
-	return ass(BCI{Bytecode::NotEq, tr(to), tr(a), tr(b)});
+	return ass(BCI(Bytecode::NotEq, to, a, b));
 }
 
 BytecodeAssembler &BytecodeAssembler::lessI(RegisterType to, RegisterType a, RegisterType b) {
-	return ass(BCI{Bytecode::LessI, tr(to), tr(a), tr(b)});
+	return ass(BCI(Bytecode::LessI, to, a, b));
 }
 
 BytecodeAssembler &BytecodeAssembler::greaterI(RegisterType to, RegisterType a, RegisterType b) {
-	return ass(BCI{Bytecode::GreaterI, tr(to), tr(a), tr(b)});
+	return ass(BCI(Bytecode::GreaterI, to, a, b));
 }
 
 BytecodeAssembler &BytecodeAssembler::set(RegisterType to, int64 value) {
-	if(value > std::numeric_limits<BytecodeInstruction::DataType>::max() || value < std::numeric_limits<BytecodeInstruction::DataType>::min()) {
+	BCI::DataType val = value;
+	if(val != value) {
 		#warning BytecodeAssembler fatal
 		fatal("BytecodeAssembler : value too big");
 	}
-	BCI i{Bytecode::Set, tr(to)};
-	i.data() = value;
-	return ass(i);
+	return ass(BCI(Bytecode::SetI, to, val));
 }
 
 BytecodeAssembler &BytecodeAssembler::copy(RegisterType to, RegisterType from) {
-	return ass(BCI{Bytecode::Copy, tr(to), tr(from)});
+	return ass(BCI(Bytecode::Copy, to, from));
 }
 
 BytecodeAssembler &BytecodeAssembler::jump(Label to) {
-	BCI i{Bytecode::Jump, {0}};
-	i.udata() = to.index - 1;
-	return ass(i);
+	return ass(BCI(Bytecode::JumpZ, 0, to.index - 1));
 }
 
 BytecodeAssembler &BytecodeAssembler::jumpNZ(RegisterType a, Label to) {
-	BCI i{Bytecode::JumpNZ, {tr(a)}};
-	i.udata() = to.index - 1;
-	return ass(i);
+	return ass(BCI(Bytecode::JumpNZ, a, to.index - 1));
 }
 
 BytecodeAssembler &BytecodeAssembler::jumpZ(RegisterType a, Label to) {
-	BCI i{Bytecode::JumpZ, {tr(a)}};
-	i.udata() = to.index - 1;
-	return ass(i);
+	return ass(BCI(Bytecode::JumpZ, a, to.index - 1));
 }
 
-BytecodeAssembler &BytecodeAssembler::call(RegisterType to, BytecodeInstruction::DataType index) {
-	BCI i{Bytecode::Call, {tr(to)}};
-	i.udata() = index;
-	return ass(i);
+BytecodeAssembler &BytecodeAssembler::call(RegisterType to, UnsignedDataType index) {
+	return ass(BCI(Bytecode::Call, to, index));
 }
 
 BytecodeAssembler &BytecodeAssembler::pushArg(RegisterType arg) {
-	return ass(BCI{Bytecode::PushArg, {tr(arg)}});
+	return ass(BCI(Bytecode::PushArg, arg));
 }
 
 BytecodeAssembler &BytecodeAssembler::ret(RegisterType from) {
-	return ass(BCI{Bytecode::Ret, {tr(from)}});
+	return ass(BCI(Bytecode::Ret, from));
 }
 
-BytecodeAssembler &BytecodeAssembler::retIm(int64 value) {
-	if(value > std::numeric_limits<BytecodeInstruction::DataType>::max() || value < std::numeric_limits<BytecodeInstruction::DataType>::min()) {
+BytecodeAssembler &BytecodeAssembler::retI(int64 value) {
+	BCI::DataType val = value;
+	if(val != value) {
 		#warning BytecodeAssembler fatal
 		fatal("BytecodeAssembler : value too big");
 	}
-	BCI i{Bytecode::RetIm, {0}};
-	i.data() = value;
-	return ass(i);
+	return ass(BCI(Bytecode::RetI, 0, val));
 }
 
 
-BytecodeAssembler &BytecodeAssembler::function(uint index, uint stack, uint args) {
-	BCI a{Bytecode::FuncHead1, {0}};
-	a.udata() = index;
-	BCI b{Bytecode::FuncHead2, {tr(stack), tr(args)}};
-
-	ass(a);
-	return ass(b);
+BytecodeAssembler &BytecodeAssembler::function(UnsignedDataType index, RegisterType stack, RegisterType args) {
+	ass(BCI(Bytecode::FuncHead1, 0, index));
+	return ass(BCI(Bytecode::FuncHead2, stack, args));
 }
 
 
 BytecodeAssembler &BytecodeAssembler::exit() {
-	return ass(BCI{Bytecode::Exit, {0}});
+	return ass(BCI(Bytecode::Exit));
 }
 
 }

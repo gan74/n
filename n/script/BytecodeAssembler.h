@@ -25,7 +25,9 @@ namespace script {
 class BytecodeAssembler
 {
 	public:
-		using RegisterType = uint;
+		using RegisterType = BytecodeInstruction::RegisterType;
+		using DataType = BytecodeInstruction::DataType;
+		using UnsignedDataType = BytecodeInstruction::UnsignedDataType;
 
 		class Label
 		{
@@ -33,10 +35,10 @@ class BytecodeAssembler
 			private:
 				friend class BytecodeAssembler;
 
-				Label(uint i) : index(i) {
+				Label(UnsignedDataType i) : index(i) {
 				}
 
-				uint index;
+				UnsignedDataType index;
 		};
 
 		BytecodeAssembler();
@@ -65,13 +67,13 @@ class BytecodeAssembler
 		BytecodeAssembler &jumpNZ(RegisterType a, Label to);
 		BytecodeAssembler &jumpZ(RegisterType a, Label to);
 
-		BytecodeAssembler &call(RegisterType to, BytecodeInstruction::DataType index);
+		BytecodeAssembler &call(RegisterType to, UnsignedDataType index);
 		BytecodeAssembler &pushArg(RegisterType arg);
 		BytecodeAssembler &ret(RegisterType from);
-		BytecodeAssembler &retIm(int64 value);
+		BytecodeAssembler &retI(int64 value);
 
 
-		BytecodeAssembler &function(uint index, uint stack, uint args);
+		BytecodeAssembler &function(UnsignedDataType index, RegisterType stack, RegisterType args);
 
 
 		BytecodeAssembler &exit();

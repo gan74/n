@@ -25,8 +25,6 @@ namespace script {
 class Machine : NonCopyable
 {
 	public:
-		using Primitive = int;
-
 		Machine();
 
 		void load(const BytecodeInstruction *bcode, const BytecodeInstruction *end);

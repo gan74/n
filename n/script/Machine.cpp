@@ -21,10 +21,10 @@ namespace script {
 Machine::Machine() : argStackTop(new Primitive[1 << 16]) {
 }
 
-Machine::Primitive Machine::run(const BytecodeInstruction *bcode, uint memSize) {
+Primitive Machine::run(const BytecodeInstruction *bcode, uint memSize) {
 	Primitive *memory = new Primitive[memSize];
 	for(uint i = 0; i != memSize; i++) {
-		memory[i] = 0;
+		memory[i].integer = 0;
 	}
 	Primitive ret;
 	run(bcode, memory, &ret);
@@ -38,7 +38,7 @@ void Machine::run(const BytecodeInstruction *bcode, Primitive *mem, Primitive *r
 
 	for(const BytecodeInstruction *i = bcode;; i++) {
 
-		Primitive *m = mem + i->registers[0];
+		Primitive *m = mem + i->dst;
 		Primitive tmp;
 
 		switch(i->op) {
@@ -47,79 +47,87 @@ void Machine::run(const BytecodeInstruction *bcode, Primitive *mem, Primitive *r
 			break;
 
 			case Bytecode::AddI:
-				*m = mem[i->registers[1]] + mem[i->registers[2]];
+				m->integer = mem[i->src[0]].integer + mem[i->src[1]].integer;
 			break;
 
 			case Bytecode::SubI:
-				*m = mem[i->registers[1]] - mem[i->registers[2]];
+				m->integer = mem[i->src[0]].integer - mem[i->src[1]].integer;
 			break;
 
 			case Bytecode::MulI:
-				*m = mem[i->registers[1]] * mem[i->registers[2]];
+				m->integer = mem[i->src[0]].integer * mem[i->src[1]].integer;
 			break;
 
 			case Bytecode::DivI:
-				tmp = mem[i->registers[2]];
-				if(!tmp) {
+				tmp = mem[i->src[1]];
+				if(!tmp.integer) {
 					fatal("divided by zero");
 				}
-				*m = mem[i->registers[1]] / tmp;
+				m->integer = mem[i->src[0]].integer / tmp.integer;;
 			break;
 
 			case Bytecode::Not:
-				*m = !mem[i->registers[1]];
+				m->integer = !mem[i->src[0]].integer;
 			break;
 
 			case Bytecode::Equals:
-				*m = mem[i->registers[1]] == mem[i->registers[2]];
+				m->integer = mem[i->src[0]].integer == mem[i->src[1]].integer;
 			break;
 
 			case Bytecode::NotEq:
-				*m = mem[i->registers[1]] != mem[i->registers[2]];
+				m->integer = mem[i->src[0]].integer != mem[i->src[1]].integer;
 			break;
 
 			case Bytecode::LessI:
-				*m = mem[i->registers[1]] < mem[i->registers[2]];
+				m->integer = mem[i->src[0]].integer < mem[i->src[1]].integer;
 			break;
 
 			case Bytecode::GreaterI:
-				*m = mem[i->registers[1]] > mem[i->registers[2]];
+				m->integer = mem[i->src[0]].integer > mem[i->src[1]].integer;
 			break;
 
 			case Bytecode::Copy:
-				*m = mem[i->registers[1]];
+				*m = mem[i->src[0]];
 			break;
 
-			case Bytecode::Set:
-				*m = i->data();
+			case Bytecode::SetI:
+				m->integer = i->data;
+			break;
+
+			case Bytecode::SetF:
+				m->real = i->fdata;
+			break;
+
+			case Bytecode::ToFloat:
+				m->integer = mem[i->src[0]].real;
 			break;
 
 			case Bytecode::Jump:
-				i = bcode + i->udata();
+				i = bcode + i->udata;
 			break;
 
 			case Bytecode::JumpZ:
-				if(!*m) {
-					i = bcode + i->udata();
+				if(!m->integer) {
+					i = bcode + i->udata;
 				}
 			break;
 
 			case Bytecode::JumpNZ:
-				if(*m) {
-					i = bcode + i->udata();
+				if(m->integer) {
+					i = bcode + i->udata;
 				}
 			break;
 
 			case Bytecode::FuncHead1:
 				i++;
 			case Bytecode::FuncHead2:
-				stackTop = mem + i->registers[0];
-				argStackTop -= i->registers[1];
-				memcpy(mem, argStackTop, sizeof(Primitive) * i->registers[1]);
+				stackTop = mem + i->dst;
+				argStackTop -= i->src[0];
+				memcpy(mem, argStackTop, sizeof(Primitive) * i->src[0]);
 			break;
 
 			case Bytecode::Call:
-				run(funcTable[i->udata()], stackTop, m);
+				run(funcTable[i->udata], stackTop, m);
 			break;
 
 			case Bytecode::PushArg:
@@ -127,8 +135,8 @@ void Machine::run(const BytecodeInstruction *bcode, Primitive *mem, Primitive *r
 				argStackTop++;
 			break;
 
-			case Bytecode::RetIm:
-				*ret = Primitive(i->data());
+			case Bytecode::RetI:
+				ret->integer = i->data;
 				return;
 
 			case Bytecode::Ret:
@@ -144,10 +152,10 @@ void Machine::load(const BytecodeInstruction *bcode, const BytecodeInstruction *
 	for(const BytecodeInstruction *i = bcode; i != end; i++) {
 		switch(i->op) {
 			case Bytecode::FuncHead1:
-				while(funcTable.size() <= i->udata()) {
+				while(funcTable.size() <= i->udata) {
 					funcTable << nullptr;
 				}
-				funcTable[i->udata()] = i;
+				funcTable[i->udata] = i;
 			break;
 
 

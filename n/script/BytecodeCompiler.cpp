@@ -117,7 +117,7 @@ void BytecodeCompiler::compile(Context &context, WTInstruction *node) {
 
 		case WTNode::Return:
 			if(as<WTReturn>(node)->value->type == WTNode::Integer) {
-				context.assembler->retIm(as<WTInt>(as<WTReturn>(node)->value)->value);
+				context.assembler->retI(as<WTInt>(as<WTReturn>(node)->value)->value);
 			} else {
 				compile(context, as<WTReturn>(node)->value);
 				context.assembler->ret(as<WTReturn>(node)->value->registerIndex);

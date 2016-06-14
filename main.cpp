@@ -15,77 +15,7 @@ using namespace n::script;
 static_assert(isLittleEndian(), "not lilendian");
 
 
-void print(uint index, BytecodeInstruction i) {
-	std::cout << index<< "\t";
-	Map<Bytecode, core::String> names;
-	names[Bytecode::AddI] = "addi";
-	names[Bytecode::SubI] = "subi";
-	names[Bytecode::MulI] = "muli";
-	names[Bytecode::DivI] = "divi";
-	names[Bytecode::LessI] = "lessi";
-	names[Bytecode::GreaterI] = "gri";
-	names[Bytecode::Equals] = "eq";
-	names[Bytecode::NotEq] = "neq";
-	switch(i.op) {
-		case Bytecode::Set:
-			std::cout << "set $" << i.registers[0] << " " << i.data();
-		break;
-
-		case Bytecode::Copy:
-			std::cout << "cpy $" << i.registers[0] << " $" << i.registers[1];
-		break;
-
-		case Bytecode::Not:
-			std::cout << "not $" << i.registers[0] << " $" << i.registers[1];
-		break;
-
-		case Bytecode::Jump:
-			std::cout << "jmp " << i.data() + 1;
-		break;
-
-		case Bytecode::JumpZ:
-			std::cout << "jmpz $" << i.registers[0] << " " << i.data() + 1;
-		break;
-
-		case Bytecode::JumpNZ:
-			std::cout << "jmpnz $" << i.registers[0] << " " << i.data() + 1;
-		break;
-
-		case Bytecode::Call:
-			std::cout << "call $" << i.registers[0] << " " << i.data() + 1;
-		break;
-
-		case Bytecode::PushArg:
-			std::cout << "push $" << i.registers[0];
-		break;
-
-		case Bytecode::FuncHead1:
-			std::cout << "function1";
-		break;
-
-		case Bytecode::FuncHead2:
-			std::cout << "function2 " << i.registers[0] << " " << i.registers[1];
-		break;
-
-		case Bytecode::Ret:
-			std::cout << "ret $" << i.registers[0];
-		break;
-
-		case Bytecode::RetIm:
-			std::cout << "retIm " << i.data();
-		break;
-
-		case Bytecode::Exit:
-			std::cout << "exit";
-		break;
-
-		default:
-			std::cout << names[i.op] << " $" << i.registers[0] << " $" << i.registers[1] << " $" << i.registers[2];
-
-
-	}
-	std::cout << std::endl;
-}
+void print(uint index, BytecodeInstruction i);
 
 int fib(volatile int a) {
 	if(a < 1) return 1;
@@ -99,8 +29,9 @@ int main(int, char **) {
 						"return fib(a - 1) + fib(a - 2);"
 						"}"
 						"fib(32);"
-						"var f:Float;"
-						"fib(f);";
+						//"var f:Float;"
+						//"fib(f);"
+						;
 
 
 	Tokenizer tokenizer;
@@ -132,12 +63,12 @@ int main(int, char **) {
 
 		Machine machine;
 		machine.load(ass.getInstructions().begin(), ass.getInstructions().end());
-		Machine::Primitive ret = machine.run(ass.getInstructions().begin());
+		Primitive ret = machine.run(ass.getInstructions().begin());
 
 		double time = timer.reset();
 		int cret = fib(32);
 		double ctime = timer.reset();
-		std::cout << std::endl << "return " << ret << " expected " << cret << std::endl << "eval = " << time * 1000 << "ms (vs " << ctime * 1000 << "ms)" << std::endl << std::endl;
+		std::cout << std::endl << "return " << ret.integer << " expected " << cret << std::endl << "eval = " << time * 1000 << "ms (vs " << ctime * 1000 << "ms)" << std::endl << std::endl;
 	} catch(SynthaxErrorException &e) {
 		std::cerr << e.what(code) << std::endl;
 	} catch(ValidationErrorException &e) {
@@ -145,4 +76,90 @@ int main(int, char **) {
 	}
 
 	return 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+void print(uint index, BytecodeInstruction i) {
+	std::cout << index<< "\t";
+	Map<Bytecode, core::String> names;
+	names[Bytecode::AddI] = "addi";
+	names[Bytecode::SubI] = "subi";
+	names[Bytecode::MulI] = "muli";
+	names[Bytecode::DivI] = "divi";
+	names[Bytecode::LessI] = "lessi";
+	names[Bytecode::GreaterI] = "gri";
+	names[Bytecode::Equals] = "eq";
+	names[Bytecode::NotEq] = "neq";
+	switch(i.op) {
+		case Bytecode::SetI:
+			std::cout << "seti $" << i.dst << " " << i.data;
+		break;
+
+		case Bytecode::SetF:
+			std::cout << "setf $" << i.dst << " " << i.data;
+		break;
+
+		case Bytecode::Copy:
+			std::cout << "cpy $" << i.dst << " $" << i.src[0];
+		break;
+
+		case Bytecode::Not:
+			std::cout << "not $" << i.dst << " $" << i.src[0];
+		break;
+
+		case Bytecode::Jump:
+			std::cout << "jmp " << i.udata + 1;
+		break;
+
+		case Bytecode::JumpZ:
+			std::cout << "jmpz $" << i.dst << " " << i.udata + 1;
+		break;
+
+		case Bytecode::JumpNZ:
+			std::cout << "jmpnz $" << i.dst << " " << i.udata + 1;
+		break;
+
+		case Bytecode::Call:
+			std::cout << "call $" << i.dst << " " << i.udata + 1;
+		break;
+
+		case Bytecode::PushArg:
+			std::cout << "push $" << i.dst;
+		break;
+
+		case Bytecode::FuncHead1:
+			std::cout << "function1";
+		break;
+
+		case Bytecode::FuncHead2:
+			std::cout << "function2 " << i.dst << " " << i.src[0];
+		break;
+
+		case Bytecode::Ret:
+			std::cout << "ret $" << i.dst;
+		break;
+
+		case Bytecode::RetI:
+			std::cout << "retIm " << i.data;
+		break;
+
+		case Bytecode::Exit:
+			std::cout << "exit";
+		break;
+
+		default:
+			std::cout << names[i.op] << " $" << i.dst << " $" << i.src[0] << " $" << i.src[1];
+
+
+	}
+	std::cout << std::endl;
 }
