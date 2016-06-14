@@ -45,10 +45,14 @@ WTExpression *ASTLiteral::toWorkTree(WTBuilder &builder, uint workReg) const {
 }
 
 WTExpression *ASTBinOp::toWorkTree(WTBuilder &builder, uint workReg) const {
+	builder.enterScope();
 	WTExpression *l = lhs->toWorkTree(builder, workReg);
+	builder.leaveScope();
+
 	builder.enterScope();
 	WTExpression *r = rhs->toWorkTree(builder, builder.allocRegister());
 	builder.leaveScope();
+
 	switch(type) {
 		case Token::Plus:
 			return new WTBinOp(WTNode::Add, l, r, notNull(builder.getTypeSystem()->add(l->expressionType, r->expressionType), position), workReg);
@@ -86,13 +90,23 @@ WTExpression *ASTAssignation::toWorkTree(WTBuilder &builder, uint) const {
 }
 
 WTExpression *ASTCall::toWorkTree(WTBuilder &builder, uint workReg) const {
+	WTFunction *function = builder.getFunc(name, position);
+	if(function->args.size() != args.size()) {
+		throw ValidationErrorException("Wrong number of argument (expected " + core::String(function->args.size()) + " got " + core::String(args.size()) + ")", position);
+	}
+
 	builder.enterScope();
-	core::Array<WTExpression *> arg = args.mapped([&](ASTExpression *e) { return e->toWorkTree(builder, builder.allocRegister()); });
+	core::Array<WTExpression *> arg;
+	for(uint i = 0; i != args.size(); i++) {
+		WTExpression *v = args[i]->toWorkTree(builder, builder.allocRegister());
+		if(!builder.getTypeSystem()->assign(function->args[i]->expressionType, v->expressionType)) {
+			throw ValidationErrorException("Function called with incompatible argument types", args[i]->position);
+		}
+		arg << v;
+	}
 	builder.leaveScope();
 
-	#warning function call arguments not checked
-
-	return new WTCall(builder.getFunc(name, position), arg, workReg);
+	return new WTCall(function, arg, workReg);
 }
 
 

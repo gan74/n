@@ -41,8 +41,6 @@ class ValidationErrorException : public std::exception
 
 class WTBuilder : NonCopyable
 {
-	public:
-
 	using VMap = core::Map<core::String, WTVariable *>;
 	using FMap = core::Map<core::String, WTFunction *>;
 

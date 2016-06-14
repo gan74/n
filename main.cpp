@@ -98,7 +98,9 @@ int main(int, char **) {
 						"if(a < 1) return 1;"
 						"return fib(a - 1) + fib(a - 2);"
 						"}"
-						"fib(32);";
+						"fib(32);"
+						"var f:Float;"
+						"fib(f);";
 
 
 	Tokenizer tokenizer;

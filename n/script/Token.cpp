@@ -35,9 +35,10 @@ core::String TokenPosition::getLine(const core::String &code) const {
 		return "";
 	}
 	for(uint i = 0;; i++) {
-		if(code[index - i] == '\n') {
-			uint beg = index - i + 1;
-			return code.subString(beg, code.find("\n", index) - code.begin() - beg);
+		if(code[index - i] == '\n' || index == i) {
+			uint beg = index - i + (code[index - i] == '\n');
+			uint end = code.find("\n", index) - code.begin();
+			return code.subString(beg, end - beg);
 		}
 	}
 	return "";
@@ -49,7 +50,7 @@ uint TokenPosition::getColumn(const core::String &code) const {
 	}
 	uint col = 0;
 	for(uint i = index;; i--, col++) {
-		if(code[i] == '\n') {
+		if(code[i] == '\n' || !i) {
 			return col - 1;
 		}
 		if(code[i] == '\t') {
