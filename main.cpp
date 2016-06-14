@@ -24,7 +24,7 @@ int fib(volatile int a) {
 
 
 int main(int, char **) {
-	core::String code = "def fib(var a:Int) = {"
+	core::String code = "def fib(a:Float) = {"
 						"if(a < 1) return 1;"
 						"return fib(a - 1) + fib(a - 2);"
 						"}"
@@ -95,8 +95,18 @@ void print(uint index, BytecodeInstruction i) {
 	names[Bytecode::SubI] = "subi";
 	names[Bytecode::MulI] = "muli";
 	names[Bytecode::DivI] = "divi";
+
+	names[Bytecode::AddF] = "addf";
+	names[Bytecode::SubF] = "subf";
+	names[Bytecode::MulF] = "mulf";
+	names[Bytecode::DivF] = "divf";
+
 	names[Bytecode::LessI] = "lessi";
 	names[Bytecode::GreaterI] = "gri";
+
+	names[Bytecode::LessF] = "lessf";
+	names[Bytecode::GreaterF] = "grf";
+
 	names[Bytecode::Equals] = "eq";
 	names[Bytecode::NotEq] = "neq";
 	switch(i.op) {
@@ -106,6 +116,10 @@ void print(uint index, BytecodeInstruction i) {
 
 		case Bytecode::SetF:
 			std::cout << "setf $" << i.dst << " " << i.data;
+		break;
+
+		case Bytecode::ToFloat:
+			std::cout << "float $" << i.dst << " $" << i.src[0];
 		break;
 
 		case Bytecode::Copy:

@@ -27,6 +27,16 @@ WTVariableType *notNull(WTVariableType *t, const TokenPosition &p) {
 	return t;
 }
 
+WTExpression *cast(WTExpression *expr, WTVariableType *type, uint reg) {
+	return expr->expressionType == type ? expr : new WTCast(expr, type, reg);
+}
+
+WTExpression *cast(WTExpression *expr, WTVariableType *type, uint reg, WTBuilder &builder, TokenPosition position) {
+	if(!builder.getTypeSystem()->assign(type, expr->expressionType)) {
+		throw ValidationErrorException("Assignation of incompatible types", position);
+	}
+	return cast(expr, type, reg);
+}
 
 WTExpression *ASTIdentifier::toWorkTree(WTBuilder &builder, uint) const {
 	return builder.getVar(name, position);
@@ -50,26 +60,42 @@ WTExpression *ASTBinOp::toWorkTree(WTBuilder &builder, uint workReg) const {
 	builder.leaveScope();
 
 	builder.enterScope();
-	WTExpression *r = rhs->toWorkTree(builder, builder.allocRegister());
+	uint rReg = builder.allocRegister();
+	WTExpression *r = rhs->toWorkTree(builder, rReg);
 	builder.leaveScope();
 
+	WTVariableType *t = 0;
 	switch(type) {
+
 		case Token::Plus:
-			return new WTBinOp(WTNode::Add, l, r, notNull(builder.getTypeSystem()->add(l->expressionType, r->expressionType), position), workReg);
+			t = notNull(builder.getTypeSystem()->add(l->expressionType, r->expressionType), position);
+			return new WTBinOp(WTNode::Add, cast(l, t, workReg), cast(r, t, rReg), t, workReg);
+
 		case Token::Minus:
-			return new WTBinOp(WTNode::Substract, l, r, builder.getTypeSystem()->getIntType(), workReg);
+			t = notNull(builder.getTypeSystem()->sub(l->expressionType, r->expressionType), position);
+			return new WTBinOp(WTNode::Substract, cast(l, t, workReg), cast(r, t, rReg), t, workReg);
+
 		case Token::Multiply:
-			return new WTBinOp(WTNode::Multiply, l, r, builder.getTypeSystem()->getIntType(), workReg);
+			t = notNull(builder.getTypeSystem()->mul(l->expressionType, r->expressionType), position);
+			return new WTBinOp(WTNode::Multiply, cast(l, t, workReg), cast(r, t, rReg), t, workReg);
+
 		case Token::Divide:
-			return new WTBinOp(WTNode::Divide, l, r, builder.getTypeSystem()->getIntType(), workReg);
+			t = notNull(builder.getTypeSystem()->div(l->expressionType, r->expressionType), position);
+			return new WTBinOp(WTNode::Divide, cast(l, t, workReg), cast(r, t, rReg), t, workReg);
+
+		case Token::LessThan:
+			t = notNull(builder.getTypeSystem()->less(l->expressionType, r->expressionType), position);
+			return new WTBinOp(WTNode::LessThan, cast(l, t, workReg), cast(r, t, rReg), t, workReg);
+
+		case Token::GreaterThan:
+			t = notNull(builder.getTypeSystem()->greater(l->expressionType, r->expressionType), position);
+			return new WTBinOp(WTNode::GreaterThan, cast(l, t, workReg), cast(r, t, rReg), t, workReg);
+
 		case Token::Equals:
 			return new WTBinOp(WTNode::Equals, l, r, builder.getTypeSystem()->getIntType(), workReg);
+
 		case Token::NotEquals:
 			return new WTBinOp(WTNode::NotEquals, l, r, builder.getTypeSystem()->getIntType(), workReg);
-		case Token::LessThan:
-			return new WTBinOp(WTNode::LessThan, l, r, builder.getTypeSystem()->getIntType(), workReg);
-		case Token::GreaterThan:
-			return new WTBinOp(WTNode::GreaterThan, l, r, builder.getTypeSystem()->getIntType(), workReg);
 
 		default:
 		break;
@@ -83,10 +109,7 @@ WTExpression *ASTBinOp::toWorkTree(WTBuilder &builder, uint workReg) const {
 WTExpression *ASTAssignation::toWorkTree(WTBuilder &builder, uint) const {
 	WTVariable *v = builder.getVar(name, position);
 	WTExpression *val = value->toWorkTree(builder, v->registerIndex);
-	if(!builder.getTypeSystem()->assign(v->expressionType, val->expressionType)) {
-		throw ValidationErrorException("Assignation of incompatible types", position);
-	}
-	return new WTAssignation(v, val);
+	return new WTAssignation(v, cast(val, v->expressionType, v->registerIndex, builder, position));
 }
 
 WTExpression *ASTCall::toWorkTree(WTBuilder &builder, uint workReg) const {
@@ -95,16 +118,17 @@ WTExpression *ASTCall::toWorkTree(WTBuilder &builder, uint workReg) const {
 		throw ValidationErrorException("Wrong number of argument (expected " + core::String(function->args.size()) + " got " + core::String(args.size()) + ")", position);
 	}
 
-	builder.enterScope();
 	core::Array<WTExpression *> arg;
 	for(uint i = 0; i != args.size(); i++) {
-		WTExpression *v = args[i]->toWorkTree(builder, builder.allocRegister());
-		if(!builder.getTypeSystem()->assign(function->args[i]->expressionType, v->expressionType)) {
-			throw ValidationErrorException("Function called with incompatible argument types", args[i]->position);
-		}
-		arg << v;
+		builder.enterScope();
+		WTExpression *ex = cast(args[i]->toWorkTree(builder, builder.allocRegister()),
+								function->args[i]->expressionType,
+								builder.allocRegister(),
+								builder,
+								position);
+		arg << ex;
+		builder.leaveScope();
 	}
-	builder.leaveScope();
 
 	return new WTCall(function, arg, workReg);
 }

@@ -143,7 +143,10 @@ ASTExpression *parseExpr(core::Array<Token>::const_iterator &begin, core::Array<
 }
 
 static ASTDeclaration *parseDeclaration(core::Array<Token>::const_iterator &begin, core::Array<Token>::const_iterator end) {
-	eat(begin, Token::Var);
+	//eat(begin, Token::Var);
+	if(begin->type == Token::Var) {
+		begin++;
+	}
 
 	expect(begin, {Token::Identifier});
 	core::String name = (begin++)->string;

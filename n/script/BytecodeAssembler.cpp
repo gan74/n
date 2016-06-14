@@ -79,6 +79,23 @@ BytecodeAssembler &BytecodeAssembler::divI(RegisterType to, RegisterType a, Regi
 	return ass(BCI(Bytecode::DivI, to, a, b));
 }
 
+BytecodeAssembler &BytecodeAssembler::addF(RegisterType to, RegisterType a, RegisterType b) {
+	return ass(BCI(Bytecode::AddF, to, a, b));
+}
+
+BytecodeAssembler &BytecodeAssembler::subF(RegisterType to, RegisterType a, RegisterType b) {
+	return ass(BCI(Bytecode::SubF, to, a, b));
+}
+
+BytecodeAssembler &BytecodeAssembler::mulF(RegisterType to, RegisterType a, RegisterType b) {
+	return ass(BCI(Bytecode::MulF, to, a, b));
+}
+
+BytecodeAssembler &BytecodeAssembler::divF(RegisterType to, RegisterType a, RegisterType b) {
+	return ass(BCI(Bytecode::DivF, to, a, b));
+}
+
+
 BytecodeAssembler &BytecodeAssembler::notI(RegisterType to, RegisterType from) {
 	return ass(BCI(Bytecode::Not, to, from));
 }
@@ -99,6 +116,14 @@ BytecodeAssembler &BytecodeAssembler::greaterI(RegisterType to, RegisterType a, 
 	return ass(BCI(Bytecode::GreaterI, to, a, b));
 }
 
+BytecodeAssembler &BytecodeAssembler::lessF(RegisterType to, RegisterType a, RegisterType b) {
+	return ass(BCI(Bytecode::LessF, to, a, b));
+}
+
+BytecodeAssembler &BytecodeAssembler::greaterF(RegisterType to, RegisterType a, RegisterType b) {
+	return ass(BCI(Bytecode::GreaterF, to, a, b));
+}
+
 BytecodeAssembler &BytecodeAssembler::set(RegisterType to, int64 value) {
 	BCI::DataType val = value;
 	if(val != value) {
@@ -106,6 +131,10 @@ BytecodeAssembler &BytecodeAssembler::set(RegisterType to, int64 value) {
 		fatal("BytecodeAssembler : value too big");
 	}
 	return ass(BCI(Bytecode::SetI, to, val));
+}
+
+BytecodeAssembler &BytecodeAssembler::toFloat(RegisterType to, RegisterType from) {
+	return ass(BCI(Bytecode::ToFloat, to, from));
 }
 
 BytecodeAssembler &BytecodeAssembler::copy(RegisterType to, RegisterType from) {

@@ -183,6 +183,15 @@ void BytecodeCompiler::compile(Context &context, WTExpression *node) {
 		case WTNode::Variable:
 		return;
 
+		case WTNode::Cast:
+			if(as<WTCast>(node)->expressionType == context.typeSystem->getFloatType() && as<WTCast>(node)->expression->expressionType == context.typeSystem->getIntType()) {
+				compile(context, as<WTCast>(node)->expression);
+				context.assembler->toFloat(as<WTCast>(node)->registerIndex, as<WTCast>(node)->expression->registerIndex);
+			} else {
+				throw CompilationErrorException("Invalid type cast", node);
+			}
+		break;
+
 
 		default:
 			throw CompilationErrorException("Unknown node type", node);
@@ -196,21 +205,38 @@ void BytecodeCompiler::compile(Context &context, WTBinOp *node) {
 	uint to = node->registerIndex;
 	uint l = node->lhs->registerIndex;
 	uint r = node->rhs->registerIndex;
+	bool isFloat = node->expressionType == context.typeSystem->getFloatType();
 	switch(node->type) {
 		case WTNode::Add:
-			context.assembler->addI(to, l, r);
+			if(isFloat) {
+				context.assembler->addF(to, l, r);
+			} else {
+				context.assembler->addI(to, l, r);
+			}
 		return;
 
 		case WTNode::Substract:
-			context.assembler->subI(to, l, r);
+			if(isFloat) {
+				context.assembler->subF(to, l, r);
+			} else {
+				context.assembler->subI(to, l, r);
+			}
 		return;
 
 		case WTNode::Multiply:
-			context.assembler->mulI(to, l, r);
+			if(isFloat) {
+				context.assembler->mulF(to, l, r);
+			} else {
+				context.assembler->mulI(to, l, r);
+			}
 		return;
 
 		case WTNode::Divide:
-			context.assembler->divI(to, l, r);
+			if(isFloat) {
+				context.assembler->divF(to, l, r);
+			} else {
+				context.assembler->divI(to, l, r);
+			}
 		return;
 
 		case WTNode::Equals:
@@ -222,11 +248,19 @@ void BytecodeCompiler::compile(Context &context, WTBinOp *node) {
 		return;
 
 		case WTNode::LessThan:
-			context.assembler->lessI(to, l, r);
+			if(isFloat) {
+				context.assembler->lessF(to, l, r);
+			} else {
+				context.assembler->lessI(to, l, r);
+			}
 		return;
 
 		case WTNode::GreaterThan:
-			context.assembler->greaterI(to, l, r);
+			if(isFloat) {
+				context.assembler->greaterF(to, l, r);
+			} else {
+				context.assembler->greaterI(to, l, r);
+			}
 		return;
 
 		default:

@@ -36,10 +36,17 @@ class WTTypeSystem : NonCopyable
 		void addType(WTVariableType *type);
 
 		bool assign(WTVariableType *lhs, WTVariableType *rhs);
+
 		WTVariableType *add(WTVariableType *lhs, WTVariableType *rhs);
+		WTVariableType *sub(WTVariableType *lhs, WTVariableType *rhs);
+		WTVariableType *mul(WTVariableType *lhs, WTVariableType *rhs);
+		WTVariableType *div(WTVariableType *lhs, WTVariableType *rhs);
+		WTVariableType *less(WTVariableType *lhs, WTVariableType *rhs);
+		WTVariableType *greater(WTVariableType *lhs, WTVariableType *rhs);
 
 	private:
 		WTVariableType *primitiveOpCoerce(WTVariableType *lhs, WTVariableType *rhs);
+		WTVariableType *binOp(WTVariableType *lhs, WTVariableType *rhs);
 
 		core::Map<core::String, WTVariableType *> types;
 };

@@ -66,8 +66,36 @@ void Machine::run(const BytecodeInstruction *bcode, Primitive *mem, Primitive *r
 				m->integer = mem[i->src[0]].integer / tmp.integer;;
 			break;
 
-			case Bytecode::Not:
-				m->integer = !mem[i->src[0]].integer;
+			case Bytecode::AddF:
+				m->real = mem[i->src[0]].real + mem[i->src[1]].real;
+			break;
+
+			case Bytecode::SubF:
+				m->real = mem[i->src[0]].real - mem[i->src[1]].real;
+			break;
+
+			case Bytecode::MulF:
+				m->real = mem[i->src[0]].real * mem[i->src[1]].real;
+			break;
+
+			case Bytecode::DivF:
+				m->real = mem[i->src[0]].real / mem[i->src[1]].real;
+			break;
+
+			case Bytecode::LessI:
+				m->integer = mem[i->src[0]].integer < mem[i->src[1]].integer;
+			break;
+
+			case Bytecode::GreaterI:
+				m->integer = mem[i->src[0]].integer > mem[i->src[1]].integer;
+			break;
+
+			case Bytecode::LessF:
+				m->real = mem[i->src[0]].real < mem[i->src[1]].real;
+			break;
+
+			case Bytecode::GreaterF:
+				m->real = mem[i->src[0]].real > mem[i->src[1]].real;
 			break;
 
 			case Bytecode::Equals:
@@ -78,12 +106,8 @@ void Machine::run(const BytecodeInstruction *bcode, Primitive *mem, Primitive *r
 				m->integer = mem[i->src[0]].integer != mem[i->src[1]].integer;
 			break;
 
-			case Bytecode::LessI:
-				m->integer = mem[i->src[0]].integer < mem[i->src[1]].integer;
-			break;
-
-			case Bytecode::GreaterI:
-				m->integer = mem[i->src[0]].integer > mem[i->src[1]].integer;
+			case Bytecode::Not:
+				m->integer = !mem[i->src[0]].integer;
 			break;
 
 			case Bytecode::Copy:

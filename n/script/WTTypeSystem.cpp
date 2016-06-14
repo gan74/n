@@ -47,17 +47,41 @@ bool WTTypeSystem::assign(WTVariableType *lhs, WTVariableType *rhs) {
 	return false;
 }
 
-WTVariableType *WTTypeSystem::add(WTVariableType *lhs, WTVariableType *rhs) {
+WTVariableType *WTTypeSystem::primitiveOpCoerce(WTVariableType *lhs, WTVariableType *rhs) {
+	WTVariablePrimitiveType *l = static_cast<WTVariablePrimitiveType *>(lhs);
+	WTVariablePrimitiveType *r = static_cast<WTVariablePrimitiveType *>(rhs);
+	return l->getCoercionOrder() < r->getCoercionOrder() ? r : l;
+}
+
+WTVariableType *WTTypeSystem::binOp(WTVariableType *lhs, WTVariableType *rhs) {
 	if(!lhs->isObject() && !rhs->isObject()) {
 		return primitiveOpCoerce(lhs, rhs);
 	}
 	return 0;
 }
 
-WTVariableType *WTTypeSystem::primitiveOpCoerce(WTVariableType *lhs, WTVariableType *rhs) {
-	WTVariablePrimitiveType *l = static_cast<WTVariablePrimitiveType *>(lhs);
-	WTVariablePrimitiveType *r = static_cast<WTVariablePrimitiveType *>(rhs);
-	return l->getCoercionOrder() < r->getCoercionOrder() ? r : l;
+WTVariableType *WTTypeSystem::add(WTVariableType *lhs, WTVariableType *rhs) {
+	return binOp(lhs, rhs);
+}
+
+WTVariableType *WTTypeSystem::sub(WTVariableType *lhs, WTVariableType *rhs) {
+	return binOp(lhs, rhs);
+}
+
+WTVariableType *WTTypeSystem::mul(WTVariableType *lhs, WTVariableType *rhs) {
+	return binOp(lhs, rhs);
+}
+
+WTVariableType *WTTypeSystem::div(WTVariableType *lhs, WTVariableType *rhs) {
+	return binOp(lhs, rhs);
+}
+
+WTVariableType *WTTypeSystem::less(WTVariableType *lhs, WTVariableType *rhs) {
+	return binOp(lhs, rhs);
+}
+
+WTVariableType *WTTypeSystem::greater(WTVariableType *lhs, WTVariableType *rhs) {
+	return binOp(lhs, rhs);
 }
 
 

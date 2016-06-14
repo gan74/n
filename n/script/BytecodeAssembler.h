@@ -53,15 +53,27 @@ class BytecodeAssembler
 		BytecodeAssembler &mulI(RegisterType to, RegisterType a, RegisterType b);
 		BytecodeAssembler &divI(RegisterType to, RegisterType a, RegisterType b);
 
+		BytecodeAssembler &addF(RegisterType to, RegisterType a, RegisterType b);
+		BytecodeAssembler &subF(RegisterType to, RegisterType a, RegisterType b);
+		BytecodeAssembler &mulF(RegisterType to, RegisterType a, RegisterType b);
+		BytecodeAssembler &divF(RegisterType to, RegisterType a, RegisterType b);
+
+
 		BytecodeAssembler &notI(RegisterType to, RegisterType from);
 
 		BytecodeAssembler &equals(RegisterType to, RegisterType a, RegisterType b);
 		BytecodeAssembler &notEq(RegisterType to, RegisterType a, RegisterType b);
+
 		BytecodeAssembler &lessI(RegisterType to, RegisterType a, RegisterType b);
 		BytecodeAssembler &greaterI(RegisterType to, RegisterType a, RegisterType b);
 
+		BytecodeAssembler &lessF(RegisterType to, RegisterType a, RegisterType b);
+		BytecodeAssembler &greaterF(RegisterType to, RegisterType a, RegisterType b);
+
 		BytecodeAssembler &copy(RegisterType to, RegisterType from);
 		BytecodeAssembler &set(RegisterType to, int64 value);
+
+		BytecodeAssembler &toFloat(RegisterType to, RegisterType from);
 
 		BytecodeAssembler &jump(Label to);
 		BytecodeAssembler &jumpNZ(RegisterType a, Label to);

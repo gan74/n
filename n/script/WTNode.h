@@ -46,6 +46,8 @@ struct WTNode : NonCopyable
 
 		Integer,
 
+		Cast,
+
 		Assignation,
 
 		Loop,
@@ -77,6 +79,14 @@ struct WTInstruction : public WTNode
 {
 	WTInstruction(WTNode::Type t) : WTNode(t) {
 	}
+};
+
+struct WTCast : public WTExpression
+{
+	WTCast(WTExpression *e, WTVariableType *ty, uint reg) : WTExpression(WTNode::Cast, ty, reg), expression(e) {
+	}
+
+	WTExpression *expression;
 };
 
 struct WTBinOp : public WTExpression

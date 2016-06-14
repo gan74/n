@@ -30,13 +30,21 @@ enum Bytecode : uint16
 	MulI,
 	DivI,
 
-	Not,
+	AddF,
+	SubF,
+	MulF,
+	DivF,
+
+	LessI,
+	GreaterI,
+
+	LessF,
+	GreaterF,
 
 	Equals,
 	NotEq,
 
-	LessI,
-	GreaterI,
+	Not,
 
 	Copy,
 
