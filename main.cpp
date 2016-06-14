@@ -14,6 +14,7 @@ using namespace n::script;
 
 static_assert(isLittleEndian(), "not lilendian");
 
+
 void print(uint index, BytecodeInstruction i) {
 	std::cout << index<< "\t";
 	Map<Bytecode, core::String> names;
