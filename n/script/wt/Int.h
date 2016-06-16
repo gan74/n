@@ -13,8 +13,8 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **********************************/
-#ifndef N_SCRIPT_WTINT_H
-#define N_SCRIPT_WTINT_H
+#ifndef N_SCRIPT_WT_INT_H
+#define N_SCRIPT_WT_INT_H
 
 #include <n/script/WTNode.h>
 
@@ -37,4 +37,4 @@ struct Int : public WTExpression
 }
 }
 
-#endif // N_SCRIPT_WTINT_H
+#endif // N_SCRIPT_WT_INT_H

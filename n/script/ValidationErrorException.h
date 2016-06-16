@@ -13,8 +13,10 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **********************************/
-#ifndef N_SCRIPT_VALIDATIONEXCEPTION_H
-#define N_SCRIPT_VALIDATIONEXCEPTION_H
+#ifndef N_SCRIPT_VALIDATIONERROREXCEPTION_H
+#define N_SCRIPT_VALIDATIONERROREXCEPTION_H
+
+#include "Token.h"
 
 namespace n {
 namespace script {
@@ -37,4 +39,4 @@ class ValidationErrorException : public std::exception
 
 }
 }
-#endif // N_SCRIPT_VALIDATIONEXCEPTION_H
+#endif // N_SCRIPT_VALIDATIONERROREXCEPTION_H

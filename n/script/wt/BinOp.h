@@ -13,8 +13,8 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **********************************/
-#ifndef N_SCRIPT_WTBINOP_H
-#define N_SCRIPT_WTBINOP_H
+#ifndef N_SCRIPT_WT_BINOP_H
+#define N_SCRIPT_WT_BINOP_H
 
 #include <n/script/WTNode.h>
 
@@ -36,4 +36,4 @@ struct BinOp : public WTExpression
 }
 }
 
-#endif // N_SCRIPT_WTBINOP_H
+#endif // N_SCRIPT_WT_BINOP_H

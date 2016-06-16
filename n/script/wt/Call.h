@@ -13,8 +13,8 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **********************************/
-#ifndef N_SCRIPT_WTCALL_H
-#define N_SCRIPT_WTCALL_H
+#ifndef N_SCRIPT_WT_CALL_H
+#define N_SCRIPT_WT_CALL_H
 
 #include <n/script/WTNode.h>
 
@@ -38,4 +38,4 @@ struct Call : public WTExpression
 }
 }
 
-#endif // N_SCRIPT_WTCALL_H
+#endif // N_SCRIPT_WT_CALL_H

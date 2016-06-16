@@ -13,8 +13,8 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **********************************/
-#ifndef N_SCRIPT_WTEXPRINSTR_H
-#define N_SCRIPT_WTEXPRINSTR_H
+#ifndef N_SCRIPT_WT_EXPR_H
+#define N_SCRIPT_WT_EXPR_H
 
 #include <n/script/WTNode.h>
 
@@ -35,4 +35,4 @@ struct ExprInstr : public WTInstruction
 }
 }
 
-#endif // N_SCRIPT_WTEXPRINSTR_H
+#endif // N_SCRIPT_WT_EXPR_H

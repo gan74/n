@@ -13,8 +13,8 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **********************************/
-#ifndef N_SCRIPT_ASTRETURN_H
-#define N_SCRIPT_ASTRETURN_H
+#ifndef N_SCRIPT_AST_RETURN_H
+#define N_SCRIPT_AST_RETURN_H
 
 #include <n/script/ASTNode.h>
 
@@ -43,4 +43,4 @@ struct Return : public ASTInstruction
 }
 }
 
-#endif // N_SCRIPT_ASTRETURN_H
+#endif // N_SCRIPT_AST_RETURN_H

@@ -13,8 +13,8 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **********************************/
-#ifndef N_SCRIPT_ASTLOOP_H
-#define N_SCRIPT_ASTLOOP_H
+#ifndef N_SCRIPT_AST_LOOP_H
+#define N_SCRIPT_AST_LOOP_H
 
 #include <n/script/ASTNode.h>
 
@@ -44,4 +44,4 @@ struct Loop : public ASTInstruction
 }
 }
 
-#endif // N_SCRIPT_ASTLOOP_H
+#endif // N_SCRIPT_AST_LOOP_H

@@ -13,8 +13,8 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **********************************/
-#ifndef N_SCRIPT_ASTFUNCTIONDECLARATION_H
-#define N_SCRIPT_ASTFUNCTIONDECLARATION_H
+#ifndef N_SCRIPT_AST_FUNCTIONDECLARATION_H
+#define N_SCRIPT_AST_FUNCTIONDECLARATION_H
 
 #include <n/script/ASTNode.h>
 #include <n/core/Array.h>
@@ -53,4 +53,4 @@ struct FunctionDeclaration : public ASTInstruction
 }
 }
 
-#endif // N_SCRIPT_ASTFUNCTIONDECLARATION_H
+#endif // N_SCRIPT_AST_FUNCTIONDECLARATION_H

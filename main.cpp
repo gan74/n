@@ -2,6 +2,9 @@
 #include <n/script/Parser.h>
 #include <n/core/Map.h>
 #include <n/core/Timer.h>
+#include <n/io/File.h>
+#include <n/io/TextInputStream.h>
+#include <n/io/Dir.h>
 #include <iostream>
 #include <n/script/WTNode.h>
 #include <n/script/WTBuilder.h>
@@ -11,6 +14,7 @@
 using namespace n;
 using namespace n::core;
 using namespace n::script;
+using namespace n::io;
 
 static_assert(isLittleEndian(), "not lilendian");
 
@@ -35,6 +39,7 @@ void run(ASTInstruction *node, WTBuilder &builder) {
 	m.load(p.begin(), p.end());
 	m.run(p.begin());
 }
+
 
 
 int main(int, char **) {
@@ -226,4 +231,49 @@ void print(uint index, BytecodeInstruction i) {
 
 	}
 	std::cout << std::endl;
+}
+
+
+void rec(Dir dir) {
+	//std::cout << "DIR : " << dir.getPath() << std::endl;
+	for(auto d : dir.getSubDirs()) {
+		rec(dir.getName() + "/" + d);
+	}
+	for(auto f : dir.getFiles()) {
+		if(f.endsWith(".h")) {
+			File file(dir.getPath() + "/" + f);
+			if(!file.open(Device::Read | Device::Write)) { fatal("fail"); }
+			char *content = new char[file.size()];
+			uint s = file.readBytes(content);
+			content[s] = 0;
+			String str(content);
+			delete[] content;
+			auto b = str.find("#define ");
+			if(b == str.end()) {
+				continue;
+			}
+			auto e = str.find("\n", b);
+			Array<String> drs;
+			String path = dir.getPath().replaced("\\", "/");
+			auto x = path.begin();
+			while(x < path.end()) {
+				auto y = path.find("/", x);
+				drs.append(path.subString(x, y - x));
+				x = y + 1;
+			}
+			String def;
+			for(uint i = 6; i < drs.size(); i++) {
+				def += drs[i].toUpper() + "_";
+			}
+			def += f.toUpper().replaced(".", "_");
+			String def2 = str.subString(b + 8, e);
+			if(def != def2) {
+				str = str.replaced(def2, def);
+				file.close();
+				file.open(Device::Write);
+				file.writeBytes(str.data(), str.size());
+			}
+			file.close();
+		}
+	}
 }

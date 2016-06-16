@@ -13,8 +13,8 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **********************************/
-#ifndef N_SCRIPT_WTVARIABLETYPE_H
-#define N_SCRIPT_WTVARIABLETYPE_H
+#ifndef N_SCRIPT_DATATYPE_H
+#define N_SCRIPT_DATATYPE_H
 
 #include <n/core/String.h>
 
@@ -75,4 +75,4 @@ class FloatDataType : public PrimitiveDataType
 }
 }
 
-#endif // N_SCRIPT_WTVARIABLETYPE_H
+#endif // N_SCRIPT_DATATYPE_H
