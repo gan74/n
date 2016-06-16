@@ -73,7 +73,7 @@ bool File::open(OpenMode m) {
 	if(m & IODevice::Write) {
 		openMode = "w";
 		if(m & IODevice::Read) {
-			openMode += "+";
+			openMode = "r+";
 		}
 	} else if(m & IODevice::AtEnd) {
 		openMode = "a";

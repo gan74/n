@@ -24,7 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace n {
 namespace io {
 
-class Dir : NonCopyable
+class Dir
 {
 	public:
 		Dir(const core::String &dirName);
