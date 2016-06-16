@@ -18,7 +18,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "BytecodeAssembler.h"
 #include "WTNode.h"
-#include "WTTypeSystem.h"
+#include "TypeSystem.h"
+#include "wt/wt.h"
 
 namespace n {
 namespace script {
@@ -48,7 +49,7 @@ class BytecodeCompiler : NonCopyable
 	{
 		core::Map<WTFunction *, BytecodeAssembler> externalAssemblers;
 		BytecodeAssembler *assembler;
-		WTTypeSystem *typeSystem;
+		TypeSystem *typeSystem;
 
 		bool useIfDoWhile;
 	};
@@ -56,14 +57,14 @@ class BytecodeCompiler : NonCopyable
 	public:
 		BytecodeCompiler();
 
-		BytecodeAssembler compile(WTInstruction *node, WTTypeSystem *ts);
+		BytecodeAssembler compile(WTInstruction *node, TypeSystem *ts);
 
 	private:
 		void compile(Context &context, WTInstruction *node);
 		void compile(Context &context, WTExpression *node);
 		void compile(Context &context, WTFunction *func);
 
-		void compile(Context &context, WTBinOp *node);
+		void compile(Context &context, wt::BinOp *node);
 };
 
 }

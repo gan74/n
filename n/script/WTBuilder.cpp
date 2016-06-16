@@ -18,17 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace n {
 namespace script {
 
-const char *ValidationErrorException::what() const noexcept {
-	return msg.data();
-}
-
-const char *ValidationErrorException::what(const core::String &code) const noexcept {
-	buffer = msg + "\n" + position.toString(code);
-	return buffer.data();
-}
-
-
-WTBuilder::WTBuilder() : types(new WTTypeSystem()) {
+WTBuilder::WTBuilder() : types(new TypeSystem()) {
 	enterFunction();
 }
 
@@ -43,7 +33,7 @@ const WTBuilder::FuncData &WTBuilder::getLocalData() const {
 	return funcStack.last();
 }
 
-WTTypeSystem *WTBuilder::getTypeSystem() const {
+TypeSystem *WTBuilder::getTypeSystem() const {
 	return types;
 }
 
@@ -106,7 +96,7 @@ WTVariable *WTBuilder::declareVar(const core::String &name, const core::String &
 	if(func.vars.exists(name)) {
 		throw ValidationErrorException("\"" + name + "\" has already been declared in this scope", tk);
 	}
-	WTVariableType *type = types->getType(typeName);
+	DataType *type = types->getType(typeName);
 	if(!type) {
 		throw ValidationErrorException("\"" + typeName + "\" is not a type", tk);
 	}
@@ -127,11 +117,11 @@ WTVariable *WTBuilder::getVar(const core::String &name, TokenPosition tk) const 
 	return it->_2;
 }
 
-WTFunction *WTBuilder::declareFunc(const core::String &name, const core::Array<WTVariable *> &args, WTVariableType *ret, TokenPosition tk) {
+WTFunction *WTBuilder::declareFunc(const core::String &name, const core::Array<WTVariable *> &args, DataType *ret, TokenPosition tk) {
 	if(funcMap.exists(name)) {
 		throw ValidationErrorException("\"" + name + "\" has already been declared in this scope", tk);
 	}
-	WTFunction *f = new WTFunction(name, args, 0, ret, funcMap.size());
+	WTFunction *f = new WTFunction(name, args, ret, funcMap.size(), 0);
 
 	funcMap.insert(name, f);
 

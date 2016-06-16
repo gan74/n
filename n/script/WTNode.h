@@ -18,8 +18,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <n/core/String.h>
 #include <n/core/Array.h>
-#include "WTVariableType.h"
-#include "WTFunction.h"
+#include "DataType.h"
+
 
 namespace n {
 namespace script {
@@ -63,14 +63,13 @@ struct WTNode : NonCopyable
 	const Type type;
 };
 
-class WTFunction;
 
 struct WTExpression : public WTNode
 {
-	WTExpression(WTNode::Type t, WTVariableType *vt, uint reg) : WTNode(t), expressionType(vt), registerIndex(reg) {
+	WTExpression(WTNode::Type t, DataType *vt, uint reg) : WTNode(t), expressionType(vt), registerIndex(reg) {
 	}
 
-	WTVariableType *expressionType;
+	DataType *expressionType;
 
 	uint registerIndex;
 };
@@ -81,101 +80,27 @@ struct WTInstruction : public WTNode
 	}
 };
 
-struct WTCast : public WTExpression
-{
-	WTCast(WTExpression *e, WTVariableType *ty, uint reg) : WTExpression(WTNode::Cast, ty, reg), expression(e) {
-	}
-
-	WTExpression *expression;
-};
-
-struct WTBinOp : public WTExpression
-{
-	WTBinOp(WTNode::Type t, WTExpression *l, WTExpression *r, WTVariableType *ty, uint reg) : WTExpression(t, ty, reg), lhs(l), rhs(r) {
-	}
-
-	WTExpression *lhs;
-	WTExpression *rhs;
-};
-
 struct WTVariable : public WTExpression
 {
-	WTVariable(const core::String &n, WTVariableType *t, uint reg) : WTExpression(Variable, t, reg), name(n) {
+	WTVariable(const core::String &n, DataType *t, uint reg) : WTExpression(Variable, t, reg), name(n) {
 	}
 
 	core::String name;
 };
 
-struct WTCall : public WTExpression
+struct WTFunction : NonCopyable
 {
-	WTCall(WTFunction *f, const core::Array<WTExpression *> &arg, uint reg) : WTExpression(Call, f->returnType, reg), func(f), args(arg) {
+	WTFunction(const core::String &n, const core::Array<WTVariable *> &arg, DataType *ret, uint ind, WTInstruction *bod = 0) : name(n), body(bod), args(arg), returnType(ret), stackSize(0), index(ind) {
 	}
 
-	WTFunction *func;
-	core::Array<WTExpression *> args;
-};
-
-struct WTInt : public WTExpression
-{
-	WTInt(int64 val, WTVariableType *intType, uint reg) : WTExpression(Integer, intType, reg), value(val) {
-	}
-
-	int64 value;
-};
-
-struct WTAssignation : public WTExpression
-{
-	WTAssignation(WTVariable *var, WTExpression *val) : WTExpression(Assignation, var->expressionType, var->registerIndex), variable(var), value(val) {
-	}
-
-	WTVariable *variable;
-	WTExpression *value;
-};
-
-struct WTLoop : public WTInstruction
-{
-	WTLoop(WTExpression *cond, WTInstruction *bod) : WTInstruction(Loop), condition(cond), body(bod) {
-	}
-
-	WTExpression *condition;
+	core::String name;
 	WTInstruction *body;
+	core::Array<WTVariable *> args;
+	DataType *returnType;
+
+	uint stackSize;
+	uint index;
 };
-
-struct WTBranch : public WTInstruction
-{
-	WTBranch(WTExpression *cond, WTInstruction *thenBod, WTInstruction *elseBod) : WTInstruction(Branch), condition(cond), thenBody(thenBod), elseBody(elseBod) {
-	}
-
-	WTExpression *condition;
-	WTInstruction *thenBody;
-	WTInstruction *elseBody;
-};
-
-struct WTExprInstr : public WTInstruction
-{
-	WTExprInstr(WTExpression *e) : WTInstruction(Expression), expression(e) {
-	}
-
-	WTExpression *expression;
-};
-
-
-struct WTBlock : public WTInstruction
-{
-	WTBlock(const core::Array<WTInstruction *> &i) : WTInstruction(Block), instructions(i) {
-	}
-
-	core::Array<WTInstruction *> instructions;
-};
-
-struct WTReturn : public WTInstruction
-{
-	WTReturn(WTExpression *val) : WTInstruction(Return), value(val) {
-	}
-
-	WTExpression *value;
-};
-
 
 }
 }

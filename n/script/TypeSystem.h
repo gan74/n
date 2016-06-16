@@ -19,36 +19,36 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <n/core/Map.h>
 #include <n/core/String.h>
 #include "Tokenizer.h"
-#include "WTVariableType.h"
+#include "DataType.h"
 
 namespace n {
 namespace script {
 
-class WTTypeSystem : NonCopyable
+class TypeSystem : NonCopyable
 {
 	public:
-		WTTypeSystem();
+		TypeSystem();
 
-		WTVariableType *getType(const core::String &name) const;
-		WTVariableType *getIntType() const;
-		WTVariableType *getFloatType() const;
+		DataType *getType(const core::String &name) const;
+		DataType *getIntType() const;
+		DataType *getFloatType() const;
 
-		void addType(WTVariableType *type);
+		void addType(DataType *type);
 
-		bool assign(WTVariableType *lhs, WTVariableType *rhs);
+		bool assign(DataType *lhs, DataType *rhs);
 
-		WTVariableType *add(WTVariableType *lhs, WTVariableType *rhs);
-		WTVariableType *sub(WTVariableType *lhs, WTVariableType *rhs);
-		WTVariableType *mul(WTVariableType *lhs, WTVariableType *rhs);
-		WTVariableType *div(WTVariableType *lhs, WTVariableType *rhs);
-		WTVariableType *less(WTVariableType *lhs, WTVariableType *rhs);
-		WTVariableType *greater(WTVariableType *lhs, WTVariableType *rhs);
+		DataType *add(DataType *lhs, DataType *rhs);
+		DataType *sub(DataType *lhs, DataType *rhs);
+		DataType *mul(DataType *lhs, DataType *rhs);
+		DataType *div(DataType *lhs, DataType *rhs);
+		DataType *less(DataType *lhs, DataType *rhs);
+		DataType *greater(DataType *lhs, DataType *rhs);
 
 	private:
-		WTVariableType *primitiveOpCoerce(WTVariableType *lhs, WTVariableType *rhs);
-		WTVariableType *binOp(WTVariableType *lhs, WTVariableType *rhs);
+		DataType *primitiveOpCoerce(DataType *lhs, DataType *rhs);
+		DataType *binOp(DataType *lhs, DataType *rhs);
 
-		core::Map<core::String, WTVariableType *> types;
+		core::Map<core::String, DataType *> types;
 };
 
 }

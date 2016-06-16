@@ -16,19 +16,76 @@ static_assert(isLittleEndian(), "not lilendian");
 
 
 void print(uint index, BytecodeInstruction i);
+void test();
+void interpret();
 
 int fib(volatile int a) {
 	if(a < 1) return 1;
 	return fib(a - 1) + fib(a - 2);
 }
 
+void run(ASTInstruction *node, WTBuilder &builder) {
+	node->lookupFunctions(builder);
+	WTInstruction *wt = node->toWorkTree(builder);
+
+	BytecodeCompiler compiler;
+	auto p = compiler.compile(wt, builder.getTypeSystem()).getInstructions();
+
+	Machine m;
+	m.load(p.begin(), p.end());
+	m.run(p.begin());
+}
+
 
 int main(int, char **) {
-	core::String code = "def fib(a:Int):Float = {"
+	test();
+	return 0;
+}
+
+void interpret() {
+	Tokenizer tokenizer;
+	Parser parser;
+	WTBuilder builder;
+
+	String block;
+
+	char line[256];
+
+	std::cout << ">>> ";
+	for(;;) {
+
+		std::cin.getline(line, 256);
+		block += line;
+
+		auto tks = tokenizer.tokenize(block);
+		try {
+			ASTInstruction *node = parser.parse(tks);
+			run(node, builder);
+
+		} catch(SynthaxErrorException &e) {
+			if(e.getToken().type == Token::End && !e.getExpected().exists(Token::SemiColon)) {
+				std::cout << "    ";
+				block += '\n';
+				continue;
+			}
+			std::cerr << e.what(block) << std::endl;
+		} catch(ValidationErrorException &e) {
+			std::cerr << e.what(block) << std::endl;
+		}
+
+		block = "";
+		std::cout << ">>> ";
+	}
+
+}
+
+void test() {
+	core::String code = "def fib(a:Float):Float = {"
 						"if(a < 1) return 1;"
 						"return fib(a - 1) + fib(a - 2);"
 						"}"
-						"fib(32);"
+						"var a:Float = 32;"
+						"a = fib(a);"
 						//"var f:Float;"
 						//"fib(f);"
 						;
@@ -74,14 +131,7 @@ int main(int, char **) {
 	} catch(ValidationErrorException &e) {
 		std::cerr << e.what(code) << std::endl;
 	}
-
-	return 0;
 }
-
-
-
-
-
 
 
 

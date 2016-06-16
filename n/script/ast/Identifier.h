@@ -13,21 +13,33 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **********************************/
-#include "WTVariableType.h"
+#ifndef N_SCRIPT_ASTIDENTIFIER_H
+#define N_SCRIPT_ASTIDENTIFIER_H
+
+#include <n/script/ASTNode.h>
 
 namespace n {
 namespace script {
 
-WTVariableType::WTVariableType(const core::String &typeName, bool obj) : name(typeName), object(obj) {
+namespace ast {
+
+struct Identifier : public ASTExpression
+{
+	Identifier(const core::String &n, const TokenPosition &pos) : ASTExpression(pos), name(n) {
+	}
+
+	const core::String name;
+
+	virtual core::String toString() const override {
+		return name;
+	}
+
+	virtual WTExpression *toWorkTree(WTBuilder &builder, uint) const override;
+};
+
 }
 
-const core::String &WTVariableType::getName() const {
-	return name;
+}
 }
 
-bool WTVariableType::isObject() const {
-	return object;
-}
-
-}
-}
+#endif // N_SCRIPT_ASTIDENTIFIER_H

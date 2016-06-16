@@ -337,7 +337,6 @@ class Array : public ResizePolicy// Be SUPER careful when adding collections dir
 			new(dataEnd++) TT(e);
 		}
 
-
 		template<typename C>
 		void appendDispatch(const C &c, FalseType) {
 			static_assert(Collection<C>::isCollection, "Can not build n::core::Array<T> from given type. (type is not convertible to T and is not a collection of T)");

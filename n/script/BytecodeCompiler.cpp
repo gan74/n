@@ -28,7 +28,7 @@ T *as(U *n) {
 BytecodeCompiler::BytecodeCompiler() {
 }
 
-BytecodeAssembler BytecodeCompiler::compile(WTInstruction *node, WTTypeSystem *ts) {
+BytecodeAssembler BytecodeCompiler::compile(WTInstruction *node, TypeSystem *ts) {
 	BytecodeAssembler assembler;
 	Context context{
 		core::Map<WTFunction *, BytecodeAssembler>(),
@@ -52,63 +52,63 @@ void BytecodeCompiler::compile(Context &context, WTInstruction *node) {
 	switch(node->type) {
 
 		case WTNode::Block:
-			for(WTInstruction *i : as<WTBlock>(node)->instructions) {
+			for(WTInstruction *i : as<wt::Block>(node)->instructions) {
 				compile(context, i);
 			}
 		return;
 
 
 		case WTNode::Expression:
-			compile(context, as<WTExprInstr>(node)->expression);
+			compile(context, as<wt::ExprInstr>(node)->expression);
 		return;
 
 
 		case WTNode::Loop: {
 			BytecodeAssembler::Label loop = context.assembler->createLabel();
-			compile(context, as<WTLoop>(node)->condition);
+			compile(context, as<wt::Loop>(node)->condition);
 
 			BytecodeAssembler::Label condJmp = context.assembler->createLabel();
 			context.assembler->nope();
 
-			compile(context, as<WTLoop>(node)->body);
+			compile(context, as<wt::Loop>(node)->body);
 
 			if(context.useIfDoWhile) {
-				compile(context, as<WTLoop>(node)->condition);
-				context.assembler->jumpNZ(as<WTLoop>(node)->condition->registerIndex, loop);
+				compile(context, as<wt::Loop>(node)->condition);
+				context.assembler->jumpNZ(as<wt::Loop>(node)->condition->registerIndex, loop);
 			} else {
 				context.assembler->jump(loop);
 			}
 
 			context.assembler->seek(condJmp);
-			context.assembler->jumpZ(as<WTLoop>(node)->condition->registerIndex, context.assembler->end());
+			context.assembler->jumpZ(as<wt::Loop>(node)->condition->registerIndex, context.assembler->end());
 			context.assembler->seek(context.assembler->end());
 		}
 		return;
 
 
 		case WTNode::Branch: {
-			compile(context, as<WTBranch>(node)->condition);
+			compile(context, as<wt::Branch>(node)->condition);
 
 			BytecodeAssembler::Label condJmp = context.assembler->createLabel();
 			context.assembler->nope();
 
-			compile(context, as<WTBranch>(node)->thenBody);
+			compile(context, as<wt::Branch>(node)->thenBody);
 
-			if(as<WTBranch>(node)->elseBody) {
+			if(as<wt::Branch>(node)->elseBody) {
 				BytecodeAssembler::Label elseJmp = context.assembler->createLabel();
 				context.assembler->nope();
 
 				context.assembler->seek(condJmp);
-				context.assembler->jumpZ(as<WTLoop>(node)->condition->registerIndex, context.assembler->end());
+				context.assembler->jumpZ(as<wt::Loop>(node)->condition->registerIndex, context.assembler->end());
 				context.assembler->seek(context.assembler->end());
 
-				compile(context, as<WTBranch>(node)->elseBody);
+				compile(context, as<wt::Branch>(node)->elseBody);
 
 				context.assembler->seek(elseJmp);
 				context.assembler->jump(context.assembler->end());
 			} else {
 				context.assembler->seek(condJmp);
-				context.assembler->jumpZ(as<WTLoop>(node)->condition->registerIndex, context.assembler->end());
+				context.assembler->jumpZ(as<wt::Loop>(node)->condition->registerIndex, context.assembler->end());
 			}
 			context.assembler->seek(context.assembler->end());
 		}
@@ -116,11 +116,11 @@ void BytecodeCompiler::compile(Context &context, WTInstruction *node) {
 
 
 		case WTNode::Return:
-			if(as<WTReturn>(node)->value->type == WTNode::Integer) {
-				context.assembler->retI(as<WTInt>(as<WTReturn>(node)->value)->value);
+			if(as<wt::Return>(node)->value->type == WTNode::Integer) {
+				context.assembler->retI(as<wt::Int>(as<wt::Return>(node)->value)->value);
 			} else {
-				compile(context, as<WTReturn>(node)->value);
-				context.assembler->ret(as<WTReturn>(node)->value->registerIndex);
+				compile(context, as<wt::Return>(node)->value);
+				context.assembler->ret(as<wt::Return>(node)->value->registerIndex);
 			}
 		return;
 
@@ -152,31 +152,31 @@ void BytecodeCompiler::compile(Context &context, WTExpression *node) {
 		case WTNode::NotEquals:
 		case WTNode::LessThan:
 		case WTNode::GreaterThan:
-			compile(context, as<WTBinOp>(node));
+			compile(context, as<wt::BinOp>(node));
 		return;
 
 
 		case WTNode::Assignation:
-			compile(context, as<WTAssignation>(node)->value);
-			if(node->registerIndex != as<WTAssignation>(node)->value->registerIndex) {
-				context.assembler->copy(node->registerIndex, as<WTAssignation>(node)->value->registerIndex);
+			compile(context, as<wt::Assignation>(node)->value);
+			if(node->registerIndex != as<wt::Assignation>(node)->value->registerIndex) {
+				context.assembler->copy(node->registerIndex, as<wt::Assignation>(node)->value->registerIndex);
 			}
 		return;
 
 		case WTNode::Call:
-			if(!context.externalAssemblers.exists(as<WTCall>(node)->func)) {
-				compile(context, as<WTCall>(node)->func);
+			if(!context.externalAssemblers.exists(as<wt::Call>(node)->func)) {
+				compile(context, as<wt::Call>(node)->func);
 			}
-			for(WTExpression *e : as<WTCall>(node)->args) {
+			for(WTExpression *e : as<wt::Call>(node)->args) {
 				compile(context, e);
 				context.assembler->pushArg(e->registerIndex);
 			}
-			context.assembler->call(as<WTCall>(node)->registerIndex, as<WTCall>(node)->func->index);
+			context.assembler->call(as<wt::Call>(node)->registerIndex, as<wt::Call>(node)->func->index);
 		return;
 
 
 		case WTNode::Integer:
-			context.assembler->set(node->registerIndex, as<WTInt>(node)->value);
+			context.assembler->set(node->registerIndex, as<wt::Int>(node)->value);
 		return;
 
 
@@ -184,9 +184,9 @@ void BytecodeCompiler::compile(Context &context, WTExpression *node) {
 		return;
 
 		case WTNode::Cast:
-			if(as<WTCast>(node)->expressionType == context.typeSystem->getFloatType() && as<WTCast>(node)->expression->expressionType == context.typeSystem->getIntType()) {
-				compile(context, as<WTCast>(node)->expression);
-				context.assembler->toFloat(as<WTCast>(node)->registerIndex, as<WTCast>(node)->expression->registerIndex);
+			if(as<wt::Cast>(node)->expressionType == context.typeSystem->getFloatType() && as<wt::Cast>(node)->expression->expressionType == context.typeSystem->getIntType()) {
+				compile(context, as<wt::Cast>(node)->expression);
+				context.assembler->toFloat(as<wt::Cast>(node)->registerIndex, as<wt::Cast>(node)->expression->registerIndex);
 			} else {
 				throw CompilationErrorException("Invalid type cast", node);
 			}
@@ -199,7 +199,7 @@ void BytecodeCompiler::compile(Context &context, WTExpression *node) {
 }
 
 
-void BytecodeCompiler::compile(Context &context, WTBinOp *node) {
+void BytecodeCompiler::compile(Context &context, wt::BinOp *node) {
 	compile(context, node->lhs);
 	compile(context, node->rhs);
 	uint to = node->registerIndex;

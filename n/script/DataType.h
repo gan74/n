@@ -21,26 +21,26 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace n {
 namespace script {
 
-class WTVariableType : NonCopyable
+class DataType : NonCopyable
 {
 	public:
 		const core::String &getName() const;
 		bool isObject() const;
 
 	private:
-		friend class WTVariablePrimitiveType;
-		friend class WTVariableObjectType;
+		friend class PrimitiveDataType;
+		friend class ObjectDataType;
 
-		WTVariableType(const core::String &typeName, bool obj);
+		DataType(const core::String &typeName, bool obj);
 
 		const core::String name;
 		const bool object;
 };
 
-class WTVariablePrimitiveType : public WTVariableType
+class PrimitiveDataType : public DataType
 {
 	public:
-		WTVariablePrimitiveType(const core::String &name, int coerceOrder = 0) : WTVariableType(name, false), order(coerceOrder) {
+		PrimitiveDataType(const core::String &name, int coerceOrder = 0) : DataType(name, false), order(coerceOrder) {
 		}
 
 		int getCoercionOrder() const {
@@ -51,24 +51,24 @@ class WTVariablePrimitiveType : public WTVariableType
 		int order;
 };
 
-class WTVariableObjectType : public WTVariableType
+class ObjectDataType : public DataType
 {
 	public:
-		WTVariableObjectType(const core::String &name) : WTVariableType(name, true) {
+		ObjectDataType(const core::String &name) : DataType(name, true) {
 		}
 };
 
-class WTVariableIntType : public WTVariablePrimitiveType
+class IntDataType : public PrimitiveDataType
 {
 	public:
-		WTVariableIntType() : WTVariablePrimitiveType("Int", 0) {
+		IntDataType() : PrimitiveDataType("Int", 0) {
 		}
 };
 
-class WTVariableFloatType : public WTVariablePrimitiveType
+class FloatDataType : public PrimitiveDataType
 {
 	public:
-		WTVariableFloatType() : WTVariablePrimitiveType("Float", 1) {
+		FloatDataType() : PrimitiveDataType("Float", 1) {
 		}
 };
 

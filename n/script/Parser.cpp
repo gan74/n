@@ -14,8 +14,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **********************************/
 #include "Parser.h"
-#include "ASTExpressions.h"
-#include "ASTInstructions.h"
+#include "ast/ast.h"
 
 namespace n {
 namespace script {
@@ -43,8 +42,13 @@ const char *SynthaxErrorException::what(const core::String &code) const noexcept
 	return buffer.data();
 }
 
+const Token &SynthaxErrorException::getToken() const {
+	return token;
+}
 
-
+const core::Array<Token::Type> &SynthaxErrorException::getExpected() const {
+	return expected;
+}
 
 void expected(core::Array<Token>::const_iterator it, const core::Array<Token::Type> &types) {
 	throw SynthaxErrorException(types, *(--it));
@@ -74,7 +78,7 @@ uint assoc(Token::Type type) {
 
 
 
-static core::Array<ASTDeclaration *> parseArgDecls(core::Array<Token>::const_iterator &begin, core::Array<Token>::const_iterator end);
+static core::Array<ast::Declaration *> parseArgDecls(core::Array<Token>::const_iterator &begin, core::Array<Token>::const_iterator end);
 static core::Array<ASTExpression *> parseArgs(core::Array<Token>::const_iterator &begin, core::Array<Token>::const_iterator end);
 
 static ASTExpression *parseExpr(core::Array<Token>::const_iterator &begin, core::Array<Token>::const_iterator end);
@@ -85,14 +89,14 @@ static ASTExpression *parseSimpleExpr(core::Array<Token>::const_iterator &begin,
 		case Token::Identifier:
 			if(begin->type == Token::Assign) {
 				begin++;
-				return new ASTAssignation(id->string, parseExpr(begin, end), (id + 1)->position);
+				return new ast::Assignation(id->string, parseExpr(begin, end), (id + 1)->position);
 			} else if(begin->type == Token::LeftPar) {
-				return new ASTCall(id->string, parseArgs(begin, end), id->position);
+				return new ast::Call(id->string, parseArgs(begin, end), id->position);
 			}
-			return new ASTIdentifier(id->string, id->position);
+			return new ast::Identifier(id->string, id->position);
 
 		case Token::Integer:
-			return new ASTLiteral(*id);
+			return new ast::Literal(*id);
 
 		case Token::LeftPar: {
 			ASTExpression *expr = parseExpr(begin, end);
@@ -123,15 +127,15 @@ ASTExpression *parseExpr(core::Array<Token>::const_iterator &begin, core::Array<
 		if(isOperator(b)) {
 			begin++;
 		} else {
-			return new ASTBinOp(lhs, mhs, a);
+			return new ast::BinOp(lhs, mhs, a);
 		}
 
 		ASTExpression *rhs = parseSimpleExpr(begin, end);
 
 		if(assoc(b) > assoc(a)) {
-			mhs = new ASTBinOp(mhs, rhs, b);
+			mhs = new ast::BinOp(mhs, rhs, b);
 		} else {
-			lhs = new ASTBinOp(lhs, mhs, a);
+			lhs = new ast::BinOp(lhs, mhs, a);
 			mhs = rhs;
 			a = b;
 		}
@@ -139,7 +143,7 @@ ASTExpression *parseExpr(core::Array<Token>::const_iterator &begin, core::Array<
 	return 0;
 }
 
-static ASTDeclaration *parseDeclaration(core::Array<Token>::const_iterator &begin, core::Array<Token>::const_iterator end) {
+static ast::Declaration *parseDeclaration(core::Array<Token>::const_iterator &begin, core::Array<Token>::const_iterator end) {
 	//eat(begin, Token::Var);
 	if(begin->type == Token::Var) {
 		begin++;
@@ -155,9 +159,9 @@ static ASTDeclaration *parseDeclaration(core::Array<Token>::const_iterator &begi
 
 	if(begin->type == Token::Assign) {
 		core::Array<Token>::const_iterator p = begin++;
-		return new ASTDeclaration(name, type, p->position, parseExpr(begin, end));
+		return new ast::Declaration(name, type, p->position, parseExpr(begin, end));
 	}
-	return new ASTDeclaration(name, type, (begin - 1)->position);
+	return new ast::Declaration(name, type, (begin - 1)->position);
 }
 
 static ASTInstruction *parseInstruction(core::Array<Token>::const_iterator &begin, core::Array<Token>::const_iterator end) {
@@ -174,16 +178,16 @@ static ASTInstruction *parseInstruction(core::Array<Token>::const_iterator &begi
 			ASTInstruction *then = parseInstruction(begin, end);
 			if(begin->type == Token::Else) {
 				begin++;
-				return new ASTBranch(expr, then, parseInstruction(begin, end));
+				return new ast::Branch(expr, then, parseInstruction(begin, end));
 			}
-			return new ASTBranch(expr, then, 0);
+			return new ast::Branch(expr, then, 0);
 		}	break;
 
 		case Token::While: {
 			begin++;
 			expect(begin, {Token::LeftPar});
 			ASTExpression *expr = parseExpr(begin, end);
-			return new ASTLoop(expr, parseInstruction(begin, end));
+			return new ast::Loop(expr, parseInstruction(begin, end));
 		} break;
 
 		case Token::LeftBrace: {
@@ -193,7 +197,7 @@ static ASTInstruction *parseInstruction(core::Array<Token>::const_iterator &begi
 				instrs.append(parseInstruction(begin, end));
 			}
 			begin++;
-			return new ASTBlock(instrs);
+			return new ast::Block(instrs);
 		} break;
 
 		case Token::Def: {
@@ -201,22 +205,22 @@ static ASTInstruction *parseInstruction(core::Array<Token>::const_iterator &begi
 			expect(begin, {Token::Identifier});
 			core::String name = begin->string;
 			begin++;
-			core::Array<ASTDeclaration *> args = parseArgDecls(begin, end);
+			core::Array<ast::Declaration *> args = parseArgDecls(begin, end);
 			eat(begin, Token::Colon);
 			expect(begin, {Token::Identifier});
 			core::String retType = begin->string;
 			begin++;
 			eat(begin, {Token::Assign});
-			return new ASTFunctionDeclaration(name, retType, args, parseInstruction(begin, end));
+			return new ast::FunctionDeclaration(name, retType, args, parseInstruction(begin, end));
 		} break;
 
 		case Token::Return:
 			begin++;
-			instr = new ASTReturn(parseExpr(begin, end));
+			instr = new ast::Return(parseExpr(begin, end));
 		break;
 
 		default:
-			instr = new ASTExprInstruction(parseExpr(begin, end));
+			instr = new ast::ExprInstr(parseExpr(begin, end));
 		break;
 	}
 	if(instr) {
@@ -227,9 +231,9 @@ static ASTInstruction *parseInstruction(core::Array<Token>::const_iterator &begi
 	return 0;
 }
 
-core::Array<ASTDeclaration *> parseArgDecls(core::Array<Token>::const_iterator &begin, core::Array<Token>::const_iterator end) {
+core::Array<ast::Declaration *> parseArgDecls(core::Array<Token>::const_iterator &begin, core::Array<Token>::const_iterator end) {
 	eat(begin, {Token::LeftPar});
-	core::Array<ASTDeclaration *> args;
+	core::Array<ast::Declaration *> args;
 	for(;;) {
 		if(begin->type == Token::RightPar) {
 			break;
@@ -274,7 +278,7 @@ ASTInstruction *Parser::parse(core::Array<Token>::const_iterator begin, core::Ar
 	while(begin != end && !(begin->type & Token::isEnd)) {
 		instrs.append(parseInstruction(begin, end));
 	}
-	return instrs.size() == 1 ? instrs.first() : new ASTBlock(instrs);
+	return instrs.size() == 1 ? instrs.first() : new ast::Block(instrs);
 }
 
 }

@@ -16,27 +16,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef N_SCRIPT_WTBUILDER_H
 #define N_SCRIPT_WTBUILDER_H
 
-#include "WTTypeSystem.h"
+#include "TypeSystem.h"
 #include "WTNode.h"
 
 namespace n {
 namespace script {
-
-class ValidationErrorException : public std::exception
-{
-	public:
-		ValidationErrorException(const core::String &m, TokenPosition tk) : msg(m), position(tk) {
-		}
-
-		virtual const char *what() const noexcept override;
-		virtual const char *what(const core::String &code) const noexcept;
-
-	private:
-		core::String msg;
-		TokenPosition position;
-
-		mutable core::String buffer;
-};
 
 
 class WTBuilder : NonCopyable
@@ -65,7 +49,7 @@ class WTBuilder : NonCopyable
 		WTVariable *declareVar(const core::String &name, const core::String &typeName, TokenPosition tk = TokenPosition());
 		WTVariable *getVar(const core::String &name, TokenPosition tk = TokenPosition()) const;
 
-		WTFunction *declareFunc(const core::String &name, const core::Array<WTVariable *> &args, WTVariableType *ret, TokenPosition tk = TokenPosition());
+		WTFunction *declareFunc(const core::String &name, const core::Array<WTVariable *> &args, DataType *ret, TokenPosition tk = TokenPosition());
 		WTFunction *getFunc(const core::String &name, TokenPosition tk = TokenPosition()) const;
 
 		void enterScope();
@@ -77,13 +61,13 @@ class WTBuilder : NonCopyable
 		uint allocRegister();
 
 		WTFunction *getCurrentFunction() const;
-		WTTypeSystem *getTypeSystem() const;
+		TypeSystem *getTypeSystem() const;
 
 	private:
 		FuncData &getLocalData();
 		const FuncData &getLocalData() const;
 
-		WTTypeSystem *types;
+		TypeSystem *types;
 
 		core::Array<FuncData> funcStack;
 

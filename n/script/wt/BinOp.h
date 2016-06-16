@@ -13,34 +13,27 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **********************************/
-#ifndef N_SCRIPT_WTFUNCTION_H
-#define N_SCRIPT_WTFUNCTION_H
+#ifndef N_SCRIPT_WTBINOP_H
+#define N_SCRIPT_WTBINOP_H
 
-#include <n/core/String.h>
-#include <n/core/Array.h>
+#include <n/script/WTNode.h>
 
 namespace n {
 namespace script {
 
-class WTInstruction;
-class WTVariable;
-class WTVariableType;
+namespace wt {
 
-struct WTFunction : NonCopyable
+struct BinOp : public WTExpression
 {
-	WTFunction(const core::String &n, const core::Array<WTVariable *> &arg, WTInstruction *bod, WTVariableType *ret, uint ind) : name(n), body(bod), args(arg), returnType(ret), stackSize(0), index(ind) {
+	BinOp(WTNode::Type t, WTExpression *l, WTExpression *r, DataType *ty, uint reg) : WTExpression(t, ty, reg), lhs(l), rhs(r) {
 	}
 
-	core::String name;
-	WTInstruction *body;
-	core::Array<WTVariable *> args;
-	WTVariableType *returnType;
-
-	uint stackSize;
-	uint index;
+	WTExpression *lhs;
+	WTExpression *rhs;
 };
 
 }
 }
+}
 
-#endif // N_SCRIPT_WTFUNCTION_H
+#endif // N_SCRIPT_WTBINOP_H

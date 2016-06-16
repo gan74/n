@@ -13,50 +13,28 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **********************************/
-#ifndef N_SCRIPT_PARSER_H
-#define N_SCRIPT_PARSER_H
-
-#include "ASTNode.h"
-#include "Tokenizer.h"
-#include <n/core/Array.h>
+#ifndef N_SCRIPT_VALIDATIONEXCEPTION_H
+#define N_SCRIPT_VALIDATIONEXCEPTION_H
 
 namespace n {
 namespace script {
 
-class SynthaxErrorException : public std::exception
+class ValidationErrorException : public std::exception
 {
 	public:
-		SynthaxErrorException(const core::Array<Token::Type> &e, const Token &t) : expected(e), token(t) {
+		ValidationErrorException(const core::String &m, TokenPosition tk) : msg(m), position(tk) {
 		}
 
 		virtual const char *what() const noexcept override;
 		virtual const char *what(const core::String &code) const noexcept;
 
-		const Token &getToken() const;
-		const core::Array<Token::Type> &getExpected() const;
-
 	private:
-		core::Array<Token::Type> expected;
-		Token token;
+		core::String msg;
+		TokenPosition position;
 
 		mutable core::String buffer;
 };
 
-class Parser : NonCopyable
-{
-	public:
-		Parser();
-
-
-		ASTInstruction *parse(const core::Array<Token> &tokens) const {
-			return parse(tokens.begin(), tokens.end());
-		}
-
-		ASTInstruction *parse(core::Array<Token>::const_iterator begin, core::Array<Token>::const_iterator end) const;
-
-};
-
 }
 }
-
-#endif // N_SCRIPT_PARSER_H
+#endif // N_SCRIPT_VALIDATIONEXCEPTION_H
