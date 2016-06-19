@@ -77,9 +77,9 @@ class Array : public ResizePolicy// Be SUPER careful when adding collections dir
 {
 	using TT = typename TypeInfo<T>::nonConst;
 	public:
-		typedef T * iterator;
-		typedef T const * const_iterator;
-		typedef T Element;
+		using iterator = T *;
+		using const_iterator = T const *;
+		using Element = T;
 
 		Array();
 		explicit Array(uint s);
@@ -90,11 +90,11 @@ class Array : public ResizePolicy// Be SUPER careful when adding collections dir
 		template<typename C, typename R>
 		Array(const Array<C, R> &a);
 
-		template<typename I>
-		Array(I b, I e);
-
 		template<typename C>
 		Array(std::initializer_list<C> l);
+
+		template<typename C, typename CC = typename std::enable_if<Collection<C>::isCollection>::type>
+		Array(const C &c);
 
 		~Array();
 
@@ -319,6 +319,7 @@ class Array : public ResizePolicy// Be SUPER careful when adding collections dir
 				move(position + 1, position, dataEnd - position);
 				position->~T();
 				new(position) T(e);
+				dataEnd++;
 				return position + 1;
 			}
 			return insert(&e, (&e) + 1, position);

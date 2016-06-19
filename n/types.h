@@ -24,18 +24,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace n {
 
-typedef uint8_t uint8;
-typedef uint16_t uint16;
-typedef uint32_t uint32;
-typedef uint64_t uint64;
+using uint8 = uint8_t;
+using uint16 = uint16_t;
+using uint32 = uint32_t;
+using uint64 = uint64_t;
 
-typedef int8_t int8;
-typedef int16_t int16;
-typedef int32_t int32;
-typedef int64_t int64;
+using int8 = int8_t;
+using int16 = int16_t;
+using int32 = int32_t;
+using int64 = int64_t;
 
-typedef uint8_t byte;
-typedef size_t uint;
+using byte = uint8_t;
+using uint = size_t;
 
 
 
@@ -63,31 +63,19 @@ namespace details {
 	extern uint typeId;
 }
 
-// be wary of templates therefor be wary of bullshit
 
-template<typename O, typename...>
+template<typename O>
 O &makeOne();
 
 struct Nothing
 {
 	template<typename... Args>
-	Nothing(Args...) {}
+	explicit Nothing(Args...) {}
 
 	template<typename... Args>
 	Nothing operator()(Args...) const {
 		return *this;
 	}
-
-	template<typename T>
-	operator T() const {
-		return fatal("Nothing used.");
-	}
-};
-
-template<int I>
-struct IntToType
-{
-	static constexpr bool value = I;
 };
 
 template<bool B>
@@ -114,20 +102,22 @@ struct BoolToType<true>
 	}
 };
 
-typedef BoolToType<false> FalseType;
-typedef BoolToType<true> TrueType;
+using FalseType = BoolToType<false>;
+using TrueType = BoolToType<true>;
+
+
 
 template<bool I, typename Then, typename Else>
 struct If
 {
-	typedef Then type;
+	using type = Then ;
 };
 
 
 template<typename Then, typename Else>
 struct If<false, Then, Else>
 {
-	typedef Else type;
+	using type = Else;
 };
 
 #define N_GEN_TYPE_HAS_MEMBER2(className, member) \
@@ -155,28 +145,6 @@ class className { \
 };
 
 #define N_GEN_TYPE_HAS_MEMBER(className, member) N_GEN_TYPE_HAS_MEMBER2(className, member)
-/*template<typename HasMemberType> \
-class className { \
-	typedef byte Yes[1]; \
-	typedef byte No[2]; \
-	template<typename U, bool B> \
-	struct SFINAE { \
-		struct Fallback { int member; }; \
-		struct Derived : HasMemberType, Fallback { }; \
-		template<class V> \
-		static No &test(decltype(V::member) *); \
-		template<typename V> \
-		static Yes &test(V *); \
-		static constexpr bool value = sizeof(test<Derived>(0)) == sizeof(Yes); \
-	}; \
-	template<typename U> \
-	struct SFINAE<U, true> { \
-		static constexpr bool value = false; \
-	}; \
-	static constexpr bool isPrimitive = !std::is_class<HasMemberType>::value && !std::is_union<HasMemberType>::value; \
-	public: \
-		static constexpr bool value = SFINAE<HasMemberType, isPrimitive>::value; \
-};*/
 
 
 #define N_GEN_TYPE_HAS_METHOD(className, method) \
@@ -198,26 +166,25 @@ class className { \
 		static constexpr bool value = SFINAE<HasMethodType, std::is_fundamental<HasMethodType>::value>::value; \
 };
 
-template<typename T>
-class StrongTypeHelper
-{
-	public:
-		StrongTypeHelper(const T &e) : t(e){
-		}
-
-		const T &get() const {
-			return t;
-		}
-
-	private:
-		const T &t;
+#define N_GEN_TYPE_HAS_METHOD_NRET(className, method) \
+template<typename HasMethodType, typename... HasMethodArgsType> \
+class className { \
+	template<typename U, bool B> \
+	struct SFINAE { \
+		struct NoType { }; \
+		template<typename V> \
+		static auto test(V *) -> BoolToType<!std::is_same<decltype(makeOne<V>().method(makeOne<HasMethodArgsType>()...)), NoType>::value>; \
+		template<typename V> \
+		static FalseType test(...); \
+		static constexpr bool value = decltype(test<U>(0))::value; \
+	}; \
+	template<typename U> \
+	struct SFINAE<U, true> { \
+		static constexpr bool value = false; \
+	}; \
+	public: \
+		static constexpr bool value = SFINAE<HasMethodType, std::is_fundamental<HasMethodType>::value>::value; \
 };
-
-#define N_GEN_CLASS_OP(cl, op) \
-template<typename T \
-/*, typename X = typename std::enable_if<!n::TypeConversion<T, cl>::exists>::type*/> \
-decltype(n::makeOne<cl>() op n::makeOne<cl>()) \
-operator op(const T &i, const n::StrongTypeHelper<cl> &s) { return (cl(i) op s.get()); }
 
 namespace details {
 	N_GEN_TYPE_HAS_MEMBER(IsConstIterableInternal, const_iterator)
@@ -259,24 +226,24 @@ namespace details {
 		static constexpr bool value = IsConstIterableDispatch<T, IsConstIterableInternal<T>::value>::value;
 	};
 
-
-	template<typename T, bool P>
-	struct TypeContentInternal // P = false
+	template<typename T, bool Ptr, bool Deref>
+	struct TypeContentInternal // false false
 	{
-		typedef NullType type;
+		using type = NullType;
 	};
 
 	template<typename T>
-	struct TypeContentInternal<T *, true>
+	struct TypeContentInternal<T *, true, true>
 	{
-		typedef T type;
+		using type = T;
 	};
 
 	template<typename T>
-	struct TypeContentInternal<T, false>
+	struct TypeContentInternal<T, false, true>
 	{
-		typedef decltype((reinterpret_cast<T *>(0))->operator*()) type;
+		using type = decltype((reinterpret_cast<T *>(0))->operator*());
 	};
+
 
 	template<typename T, bool P>
 	struct IsDereferenceable // P = false
@@ -294,7 +261,7 @@ namespace details {
 	template<typename T>
 	struct IsDereferenceable<T, true>
 	{
-		static constexpr bool value = false;
+		static constexpr bool value = std::is_pointer<T>::value;
 	};
 
 	template<typename T, bool B>
@@ -403,10 +370,10 @@ struct TypeInfo
 
 	static const TypeData type;
 
-	typedef T nonRef;
-	typedef T nonConst;
-	typedef T nonPtr;
-	typedef T decayed;
+	using nonRef = T;
+	using nonConst = T;
+	using nonPtr = T;
+	using decayed = T;
 };
 
 #undef N_HAS_CPY_CTOR
@@ -430,10 +397,10 @@ struct TypeInfo<T *>
 
 	static const TypeData type;
 
-	typedef typename TypeInfo<T>::nonRef *nonRef;
-	typedef T* nonConst;
-	typedef T nonPtr;
-	typedef typename TypeInfo<T>::decayed decayed;
+	using nonRef = typename TypeInfo<T>::nonRef *;
+	using nonConst = T *;
+	using nonPtr = T;
+	using decayed = typename TypeInfo<T>::decayed;
 };
 
 template<typename T>
@@ -454,10 +421,10 @@ struct TypeInfo<const T>
 
 	static const TypeData type;
 
-	typedef const typename TypeInfo<T>::nonRef nonRef;
-	typedef T nonConst;
-	typedef const typename TypeInfo<T>::nonPtr nonPtr;
-	typedef typename TypeInfo<T>::decayed decayed;
+	using nonRef = const typename TypeInfo<T>::nonRef;
+	using nonConst = T;
+	using nonPtr = const typename TypeInfo<T>::nonPtr;
+	using decayed = typename TypeInfo<T>::decayed;
 };
 
 template<typename T>
@@ -478,10 +445,10 @@ struct TypeInfo<T &>
 
 	static const TypeData type;
 
-	typedef T nonRef;
-	typedef T& nonConst;
-	typedef typename TypeInfo<T>::nonPtr &nonPtr;
-	typedef typename TypeInfo<T>::decayed decayed;
+	using nonRef = T;
+	using nonConst = T&;
+	using nonPtr = typename TypeInfo<T>::nonPtr &;
+	using decayed = typename TypeInfo<T>::decayed;
 };
 
 template<typename T>
@@ -502,10 +469,10 @@ struct TypeInfo<T[]>
 
 	static const TypeData type;
 
-	typedef T nonRef;
-	typedef typename TypeInfo<T>::nonConst nonConst;
-	typedef typename TypeInfo<T>::nonPtr nonPtr;
-	typedef typename TypeInfo<T>::decayed decayed;
+	using nonRef = T;
+	using nonConst = typename TypeInfo<T>::nonConst;
+	using nonPtr = typename TypeInfo<T>::nonPtr;
+	using decayed = typename TypeInfo<T>::decayed;
 };
 
 template<typename T, uint N>
@@ -526,10 +493,10 @@ struct TypeInfo<T[N]>
 
 	static const TypeData type;
 
-	typedef T nonRef;
-	typedef typename TypeInfo<T>::nonConst &nonConst;
-	typedef typename TypeInfo<T>::nonPtr &nonPtr;
-	typedef typename TypeInfo<T>::decayed decayed;
+	using nonRef = T;
+	using nonConst = typename TypeInfo<T>::nonConst &;
+	using nonPtr = typename TypeInfo<T>::nonPtr &;
+	using decayed = typename TypeInfo<T>::decayed;
 };
 
 template<typename T, typename... Args>
@@ -590,7 +557,7 @@ const TypeData TypeInfo<T[N]>::type = typeid(T[N]);
 template<typename T>
 struct TypeContent
 {
-	typedef typename details::TypeContentInternal<T, TypeInfo<T>::isPrimitive || !TypeInfo<T>::isDereferenceable>::type type;
+	using type = typename details::TypeContentInternal<T, TypeInfo<T>::isPointer, TypeInfo<T>::isDereferenceable>::type;
 };
 
 
