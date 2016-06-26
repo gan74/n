@@ -24,25 +24,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace n {
 namespace script {
 
-class CompilationErrorException : public std::exception
-{
-	public:
-		CompilationErrorException(const core::String &m, WTNode *n) : msg(m), node(n) {
-		}
-
-		virtual const char *what() const noexcept override {
-			return msg.data();
-		}
-
-		WTNode *getNode() const {
-			return node;
-		}
-
-	private:
-		core::String msg;
-		WTNode *node;
-};
-
 class BytecodeCompiler : NonCopyable
 {
 	struct Context

@@ -5,12 +5,14 @@
 #include <n/io/File.h>
 #include <n/io/TextInputStream.h>
 #include <n/io/Dir.h>
-#include <iostream>
 #include <n/script/WTNode.h>
 #include <n/script/ClassBuilder.h>
-#include <n/script/ValidationErrorException.h>
+#include <n/script/exceptions.h>
 #include <n/script/BytecodeCompiler.h>
 #include <n/script/Machine.h>
+
+
+#include <iostream>
 
 using namespace n;
 using namespace n::core;

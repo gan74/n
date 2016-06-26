@@ -16,6 +16,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Declaration.h"
 #include <n/script/ClassBuilder.h>
+#include <n/script/exceptions.h>
 #include <n/script/wt/wt.h>
 
 namespace n {
@@ -23,6 +24,10 @@ namespace script {
 namespace ast {
 
 WTStatement *ast::Declaration::toWorkTree(ClassBuilder &builder, Scope &s) const {
+	if(s[name]) {
+		throw ValidationErrorException("\"" + name + "\" has already been declared in this scope", position);
+	}
+
 	WTVariable *var = s.declare(name, builder.getTypeSystem()[typeName]);
 
 	auto scope = s.nest();

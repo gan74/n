@@ -16,7 +16,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "FunctionDeclaration.h"
 #include <n/script/ClassBuilder.h>
-#include <n/script/ValidationErrorException.h>
+#include <n/script/exceptions.h>
 #include <n/script/wt/wt.h>
 
 namespace n {
@@ -36,6 +36,10 @@ WTStatement *ast::FunctionDeclaration::toWorkTree(ClassBuilder &builder, Scope &
 }
 
 void ast::FunctionDeclaration::lookupFunctions(ClassBuilder &builder) const {
+	if(builder.getMethods()[name]) {
+		throw ValidationErrorException("\"" + name + "\" has already been declared in this scope", position);
+	}
+
 	ClassBuilder b(&builder.getTypeSystem(), &builder.getMethods());
 
 	core::Array<WTVariable *> arg;

@@ -14,7 +14,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **********************************/
 #include "ClassBuilder.h"
-#include "ValidationErrorException.h"
+#include "exceptions.h"
 #include <n/script/wt/wt.h>
 
 namespace n {

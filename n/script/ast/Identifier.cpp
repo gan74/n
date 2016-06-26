@@ -16,14 +16,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Identifier.h"
 #include <n/script/ClassBuilder.h>
+#include <n/script/exceptions.h>
 #include <n/script/wt/wt.h>
 
 namespace n {
 namespace script {
 namespace ast {
 
-WTExpression *ast::Identifier::toWorkTree(ClassBuilder &builder, Scope &s, uint) const {
-	return s[name];
+WTExpression *ast::Identifier::toWorkTree(ClassBuilder &, Scope &s, uint) const {
+	WTVariable *var = s[name];
+	if(!var) {
+		throw ValidationErrorException("\"" + name + "\" was not declared in this scope", position);
+	}
+	return var;
 }
 
 }

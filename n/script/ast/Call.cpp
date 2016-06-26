@@ -15,7 +15,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **********************************/
 
 #include "Call.h"
-#include <n/script/ValidationErrorException.h>
+#include <n/script/exceptions.h>
 #include <n/script/ClassBuilder.h>
 #include <n/script/wt/wt.h>
 

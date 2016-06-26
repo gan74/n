@@ -17,30 +17,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define N_SCRIPT_PARSER_H
 
 #include "ASTNode.h"
+#include "exceptions.h"
 #include "Tokenizer.h"
 #include <n/core/Array.h>
 
 namespace n {
 namespace script {
-
-class SynthaxErrorException : public std::exception
-{
-	public:
-		SynthaxErrorException(const core::Array<Token::Type> &e, const Token &t) : expected(e), token(t) {
-		}
-
-		virtual const char *what() const noexcept override;
-		virtual const char *what(const core::String &code) const noexcept;
-
-		const Token &getToken() const;
-		const core::Array<Token::Type> &getExpected() const;
-
-	private:
-		core::Array<Token::Type> expected;
-		Token token;
-
-		mutable core::String buffer;
-};
 
 class Parser : NonCopyable
 {

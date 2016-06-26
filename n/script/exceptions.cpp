@@ -13,10 +13,41 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **********************************/
-#include "ValidationErrorException.h"
+#include "exceptions.h"
 
 namespace n {
 namespace script {
+
+const char *SynthaxErrorException::what() const noexcept {
+	buffer = "{ ";
+	for(Token::Type t : expected) {
+		buffer << Token::getName(t) << " ";
+	}
+	buffer = "Expected " + buffer + "} got " + Token::getName(token.type) + " (\"" + token.string + "\")";
+	return buffer.data();
+}
+
+const char *SynthaxErrorException::what(const core::String &code) const noexcept {
+	buffer = "{ ";
+	for(Token::Type t : expected) {
+		buffer << Token::getName(t) << " ";
+	}
+	buffer = "Expected " + buffer + "} got " + Token::getName(token.type) + ":";
+	if(token.type == Token::Identifier) {
+		buffer += " \"" + token.string + "\"";
+	}
+	buffer += "\n" + token.position.toString(code);
+
+	return buffer.data();
+}
+
+const Token &SynthaxErrorException::getToken() const {
+	return token;
+}
+
+const core::Array<Token::Type> &SynthaxErrorException::getExpected() const {
+	return expected;
+}
 
 const char *ValidationErrorException::what() const noexcept {
 	return msg.data();
