@@ -19,13 +19,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace n {
 namespace script {
 
-Scope::Scope() : parent(0), top(this), reg(0) {
+Scope::Scope() : parent(0), top(this), reg(0), stackSize(0) {
 }
 
-Scope::Scope(Scope *p) : parent(p), top(p->top), reg(p->reg) {
+Scope::Scope(Scope *p) : parent(p), top(p->top), reg(p->reg), stackSize(p->stackSize) {
 }
 
-Scope::Scope(Scope &&s) : parent(s.parent), top(s.isTop() ? this : s.top), reg(s.reg) {
+Scope::Scope(Scope &&s) : parent(s.parent), top(s.isTop() ? this : s.top), reg(s.reg), stackSize(s.stackSize) {
 }
 
 Scope &Scope::operator=(Scope &&s) {
@@ -88,6 +88,10 @@ uint Scope::alloc() {
 	uint r = reg++;
 	updateStackSize();
 	return r;
+}
+
+uint Scope::getStackSize() const {
+	return top->stackSize;
 }
 
 

@@ -25,9 +25,7 @@ ClassBuilder::ClassBuilder(TypeSystem *t, FunctionTable *f, WTFunction *s) : cur
 
 ClassBuilder::~ClassBuilder() {
 	if(current) {
-		#warning fbeaojbf
-		current->stackSize = 16;
-		//current->stackSize = variables.getRegisterCount();
+		current->stackSize = scope.getStackSize();
 	}
 }
 
