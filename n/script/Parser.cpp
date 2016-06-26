@@ -164,8 +164,8 @@ static ast::Declaration *parseDeclaration(core::Array<Token>::const_iterator &be
 	return new ast::Declaration(name, type, (begin - 1)->position);
 }
 
-static ASTInstruction *parseInstruction(core::Array<Token>::const_iterator &begin, core::Array<Token>::const_iterator end) {
-	ASTInstruction *instr = 0;
+static ASTStatement *parseInstruction(core::Array<Token>::const_iterator &begin, core::Array<Token>::const_iterator end) {
+	ASTStatement *instr = 0;
 	switch(begin->type) {
 		case Token::Var:
 			instr = parseDeclaration(begin, end);
@@ -175,7 +175,7 @@ static ASTInstruction *parseInstruction(core::Array<Token>::const_iterator &begi
 			begin++;
 			expect(begin, {Token::LeftPar});
 			ASTExpression *expr = parseExpr(begin, end);
-			ASTInstruction *then = parseInstruction(begin, end);
+			ASTStatement *then = parseInstruction(begin, end);
 			if(begin->type == Token::Else) {
 				begin++;
 				return new ast::Branch(expr, then, parseInstruction(begin, end));
@@ -192,7 +192,7 @@ static ASTInstruction *parseInstruction(core::Array<Token>::const_iterator &begi
 
 		case Token::LeftBrace: {
 			begin++;
-			core::Array<ASTInstruction *> instrs;
+			core::Array<ASTStatement *> instrs;
 			while(begin->type != Token::RightBrace) {
 				instrs.append(parseInstruction(begin, end));
 			}
@@ -273,8 +273,8 @@ core::Array<ASTExpression *> parseArgs(core::Array<Token>::const_iterator &begin
 Parser::Parser() {
 }
 
-ASTInstruction *Parser::parse(core::Array<Token>::const_iterator begin, core::Array<Token>::const_iterator end) const {
-	core::Array<ASTInstruction *> instrs;
+ASTStatement *Parser::parse(core::Array<Token>::const_iterator begin, core::Array<Token>::const_iterator end) const {
+	core::Array<ASTStatement *> instrs;
 	while(begin != end && !(begin->type & Token::isEnd)) {
 		instrs.append(parseInstruction(begin, end));
 	}

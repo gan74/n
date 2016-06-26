@@ -57,10 +57,10 @@ class BytecodeCompiler : NonCopyable
 	public:
 		BytecodeCompiler();
 
-		BytecodeAssembler compile(WTInstruction *node, TypeSystem *ts);
+		BytecodeAssembler compile(WTStatement *node, TypeSystem *ts);
 
 	private:
-		void compile(Context &context, WTInstruction *node);
+		void compile(Context &context, WTStatement *node);
 		void compile(Context &context, WTExpression *node);
 		void compile(Context &context, WTFunction *func);
 

@@ -22,7 +22,7 @@ namespace n {
 namespace script {
 namespace ast {
 
-WTInstruction *ast::ExprInstr::toWorkTree(ClassBuilder &builder, Scope &s) const {
+WTStatement *ast::ExprInstr::toWorkTree(ClassBuilder &builder, Scope &s) const {
 	auto scope = s.nest();
 
 	return new wt::ExprInstr(expression->toWorkTree(builder, scope, scope.alloc()));

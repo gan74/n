@@ -48,11 +48,11 @@ class Parser : NonCopyable
 		Parser();
 
 
-		ASTInstruction *parse(const core::Array<Token> &tokens) const {
+		ASTStatement *parse(const core::Array<Token> &tokens) const {
 			return parse(tokens.begin(), tokens.end());
 		}
 
-		ASTInstruction *parse(core::Array<Token>::const_iterator begin, core::Array<Token>::const_iterator end) const;
+		ASTStatement *parse(core::Array<Token>::const_iterator begin, core::Array<Token>::const_iterator end) const;
 
 };
 

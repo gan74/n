@@ -23,9 +23,9 @@ namespace script {
 
 namespace wt {
 
-struct Return : public WTInstruction
+struct Return : public WTStatement
 {
-	Return(WTExpression *val) : WTInstruction(WTNode::Return), value(val) {
+	Return(WTExpression *val) : WTStatement(WTNode::Return), value(val) {
 	}
 
 	WTExpression *value;

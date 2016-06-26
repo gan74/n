@@ -23,9 +23,9 @@ namespace script {
 
 namespace ast {
 
-struct Declaration : public ASTInstruction
+struct Declaration : public ASTStatement
 {
-	Declaration(const core::String &n, const core::String &tn, const TokenPosition &pos, ASTExpression *val = 0) : ASTInstruction(pos), name(n), typeName(tn), value(val) {
+	Declaration(const core::String &n, const core::String &tn, const TokenPosition &pos, ASTExpression *val = 0) : ASTStatement(pos), name(n), typeName(tn), value(val) {
 	}
 
 	const core::String name;
@@ -36,7 +36,7 @@ struct Declaration : public ASTInstruction
 		return "var " + name + ":" + typeName + (value ? " = " + value->toString() : core::String()) + ";";
 	}
 
-	virtual WTInstruction *toWorkTree(ClassBuilder &builder, Scope &s) const override;
+	virtual WTStatement *toWorkTree(ClassBuilder &builder, Scope &s) const override;
 	virtual void lookupFunctions(ClassBuilder &) const override;
 };
 

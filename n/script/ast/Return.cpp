@@ -23,7 +23,7 @@ namespace n {
 namespace script {
 namespace ast {
 
-WTInstruction *ast::Return::toWorkTree(ClassBuilder &builder, Scope &s) const {
+WTStatement *ast::Return::toWorkTree(ClassBuilder &builder, Scope &s) const {
 	WTFunction *function = builder.getCurrentFunction();
 	if(!function) {
 		throw ValidationErrorException("return statement outside function", position);

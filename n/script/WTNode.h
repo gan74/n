@@ -74,9 +74,9 @@ struct WTExpression : public WTNode
 	uint registerIndex;
 };
 
-struct WTInstruction : public WTNode
+struct WTStatement : public WTNode
 {
-	WTInstruction(WTNode::Type t) : WTNode(t) {
+	WTStatement(WTNode::Type t) : WTNode(t) {
 	}
 };
 
@@ -90,11 +90,11 @@ struct WTVariable : public WTExpression
 
 struct WTFunction : NonCopyable
 {
-	WTFunction(const core::String &n, const core::Array<WTVariable *> &arg, DataType *ret, uint ind, WTInstruction *bod = 0) : name(n), body(bod), args(arg), returnType(ret), stackSize(0), index(ind) {
+	WTFunction(const core::String &n, const core::Array<WTVariable *> &arg, DataType *ret, uint ind, WTStatement *bod = 0) : name(n), body(bod), args(arg), returnType(ret), stackSize(0), index(ind) {
 	}
 
 	core::String name;
-	WTInstruction *body;
+	WTStatement *body;
 	core::Array<WTVariable *> args;
 	DataType *returnType;
 

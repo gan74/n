@@ -23,7 +23,7 @@ namespace n {
 namespace script {
 namespace ast {
 
-WTInstruction *ast::FunctionDeclaration::toWorkTree(ClassBuilder &builder, Scope &) const {
+WTStatement *ast::FunctionDeclaration::toWorkTree(ClassBuilder &builder, Scope &) const {
 	WTFunction *function = builder.getMethods()[name];
 
 	ClassBuilder b(&builder.getTypeSystem(), &builder.getMethods(), function);

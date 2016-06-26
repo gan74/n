@@ -23,20 +23,20 @@ namespace script {
 
 namespace ast {
 
-struct Branch : public ASTInstruction
+struct Branch : public ASTStatement
 {
-	Branch(ASTExpression *cond, ASTInstruction *then, ASTInstruction *el) : ASTInstruction(cond->position), condition(cond), thenBody(then), elseBody(el) {
+	Branch(ASTExpression *cond, ASTStatement *then, ASTStatement *el) : ASTStatement(cond->position), condition(cond), thenBody(then), elseBody(el) {
 	}
 
 	const ASTExpression *condition;
-	const ASTInstruction *thenBody;
-	const ASTInstruction *elseBody;
+	const ASTStatement *thenBody;
+	const ASTStatement *elseBody;
 
 	virtual core::String toString() const override {
 		return "if(" + condition->toString() + ") " + thenBody->toString() + (elseBody ? " else " + elseBody->toString() : "");
 	}
 
-	virtual WTInstruction *toWorkTree(ClassBuilder &builder, Scope &s) const override;
+	virtual WTStatement *toWorkTree(ClassBuilder &builder, Scope &s) const override;
 	virtual void lookupFunctions(ClassBuilder &builder) const override;
 };
 

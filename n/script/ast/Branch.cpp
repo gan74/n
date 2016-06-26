@@ -22,15 +22,15 @@ namespace n {
 namespace script {
 namespace ast {
 
-WTInstruction *ast::Branch::toWorkTree(ClassBuilder &builder, Scope &s) const {
+WTStatement *ast::Branch::toWorkTree(ClassBuilder &builder, Scope &s) const {
 	auto scope = s.nest();
 	WTExpression *c = condition->toWorkTree(builder, scope, scope.alloc());
 
 	scope = s.nest();
-	WTInstruction *t = thenBody->toWorkTree(builder, scope);
+	WTStatement *t = thenBody->toWorkTree(builder, scope);
 
 	scope = s.nest();
-	WTInstruction *e = elseBody ? elseBody->toWorkTree(builder, scope) : 0;
+	WTStatement *e = elseBody ? elseBody->toWorkTree(builder, scope) : 0;
 
 	return new wt::Branch(c, t, e);
 }

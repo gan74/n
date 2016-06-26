@@ -23,14 +23,14 @@ namespace script {
 
 namespace wt {
 
-struct Branch : public WTInstruction
+struct Branch : public WTStatement
 {
-	Branch(WTExpression *cond, WTInstruction *thenBod, WTInstruction *elseBod) : WTInstruction(WTNode::Branch), condition(cond), thenBody(thenBod), elseBody(elseBod) {
+	Branch(WTExpression *cond, WTStatement *thenBod, WTStatement *elseBod) : WTStatement(WTNode::Branch), condition(cond), thenBody(thenBod), elseBody(elseBod) {
 	}
 
 	WTExpression *condition;
-	WTInstruction *thenBody;
-	WTInstruction *elseBody;
+	WTStatement *thenBody;
+	WTStatement *elseBody;
 };
 }
 }

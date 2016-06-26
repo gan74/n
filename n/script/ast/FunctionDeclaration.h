@@ -25,15 +25,15 @@ namespace script {
 
 namespace ast {
 
-struct FunctionDeclaration : public ASTInstruction
+struct FunctionDeclaration : public ASTStatement
 {
-	FunctionDeclaration(const core::String &n, const core::String &tn, const core::Array<Declaration *> &a, ASTInstruction *bod) : ASTInstruction(bod->position), name(n), retTypeName(tn), args(a), body(bod) {
+	FunctionDeclaration(const core::String &n, const core::String &tn, const core::Array<Declaration *> &a, ASTStatement *bod) : ASTStatement(bod->position), name(n), retTypeName(tn), args(a), body(bod) {
 	}
 
 	const core::String name;
 	const core::String retTypeName;
 	const core::Array<Declaration *> args;
-	const ASTInstruction *body;
+	const ASTStatement *body;
 
 	virtual core::String toString() const override {
 		core::String a;
@@ -43,7 +43,7 @@ struct FunctionDeclaration : public ASTInstruction
 		return "def " + name + "( " + a + ") = " + body->toString();
 	}
 
-	virtual WTInstruction *toWorkTree(ClassBuilder &builder, Scope &) const override;
+	virtual WTStatement *toWorkTree(ClassBuilder &builder, Scope &) const override;
 	virtual void lookupFunctions(ClassBuilder &builder) const override;
 };
 

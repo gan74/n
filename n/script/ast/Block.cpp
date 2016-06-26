@@ -21,11 +21,11 @@ namespace n {
 namespace script {
 namespace ast {
 
-WTInstruction *ast::Block::toWorkTree(ClassBuilder &builder, Scope &s) const {
+WTStatement *ast::Block::toWorkTree(ClassBuilder &builder, Scope &s) const {
 	auto scope = s.nest();
-	core::Array<WTInstruction *> in;
-	for(ASTInstruction *i : instructions) {
-		WTInstruction *ii = i->toWorkTree(builder, scope);
+	core::Array<WTStatement *> in;
+	for(ASTStatement *i : instructions) {
+		WTStatement *ii = i->toWorkTree(builder, scope);
 		if(ii) {
 			in.append(ii);
 		}
@@ -34,7 +34,7 @@ WTInstruction *ast::Block::toWorkTree(ClassBuilder &builder, Scope &s) const {
 }
 
 void ast::Block::lookupFunctions(ClassBuilder &builder) const {
-	for(ASTInstruction *i : instructions) {
+	for(ASTStatement *i : instructions) {
 		i->lookupFunctions(builder);
 	}
 }

@@ -24,7 +24,7 @@ namespace n {
 namespace script {
 
 class WTExpression;
-class WTInstruction;
+class WTStatement;
 
 struct ASTNode : NonCopyable
 {
@@ -47,16 +47,16 @@ struct ASTExpression : public ASTNode
 	virtual WTExpression *toWorkTree(ClassBuilder &, Scope &, uint) const = 0;
 };
 
-struct ASTInstruction : public ASTNode
+struct ASTStatement : public ASTNode
 {
-	ASTInstruction(const TokenPosition &pos) : ASTNode(pos) {
+	ASTStatement(const TokenPosition &pos) : ASTNode(pos) {
 	}
 
-	WTInstruction *toWorkTree(ClassBuilder &builder) const {
+	WTStatement *toWorkTree(ClassBuilder &builder) const {
 		return toWorkTree(builder, builder.getScope());
 	}
 
-	virtual WTInstruction *toWorkTree(ClassBuilder &, Scope &) const = 0;
+	virtual WTStatement *toWorkTree(ClassBuilder &, Scope &) const = 0;
 	virtual void lookupFunctions(ClassBuilder &) const = 0;
 };
 

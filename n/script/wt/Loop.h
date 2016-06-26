@@ -23,13 +23,13 @@ namespace script {
 
 namespace wt {
 
-struct Loop : public WTInstruction
+struct Loop : public WTStatement
 {
-	Loop(WTExpression *cond, WTInstruction *bod) : WTInstruction(WTNode::Loop), condition(cond), body(bod) {
+	Loop(WTExpression *cond, WTStatement *bod) : WTStatement(WTNode::Loop), condition(cond), body(bod) {
 	}
 
 	WTExpression *condition;
-	WTInstruction *body;
+	WTStatement *body;
 };
 
 }

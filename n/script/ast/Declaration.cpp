@@ -22,7 +22,7 @@ namespace n {
 namespace script {
 namespace ast {
 
-WTInstruction *ast::Declaration::toWorkTree(ClassBuilder &builder, Scope &s) const {
+WTStatement *ast::Declaration::toWorkTree(ClassBuilder &builder, Scope &s) const {
 	WTVariable *var = s.declare(name, builder.getTypeSystem()[typeName]);
 
 	auto scope = s.nest();

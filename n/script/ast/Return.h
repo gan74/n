@@ -23,9 +23,9 @@ namespace script {
 
 namespace ast {
 
-struct Return : public ASTInstruction
+struct Return : public ASTStatement
 {
-	Return(ASTExpression *expr) : ASTInstruction(expr->position), expression(expr) {
+	Return(ASTExpression *expr) : ASTStatement(expr->position), expression(expr) {
 	}
 
 	const ASTExpression *expression;
@@ -34,7 +34,7 @@ struct Return : public ASTInstruction
 		return "return " + expression->toString() + ";";
 	}
 
-	virtual WTInstruction *toWorkTree(ClassBuilder &builder, Scope &s) const override;
+	virtual WTStatement *toWorkTree(ClassBuilder &builder, Scope &s) const override;
 	virtual void lookupFunctions(ClassBuilder &) const override;
 };
 

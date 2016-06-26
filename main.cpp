@@ -24,14 +24,14 @@ void print(uint index, BytecodeInstruction i);
 void test();
 void interpret();
 
-int fib(volatile int a) {
+int64 fib(volatile int64 a) {
 	if(a < 1) return 1;
 	return fib(a - 1) + fib(a - 2);
 }
 
-void run(ASTInstruction *node, ClassBuilder &builder) {
+void run(ASTStatement *node, ClassBuilder &builder) {
 	node->lookupFunctions(builder);
-	WTInstruction *wt = node->toWorkTree(builder);
+	WTStatement *wt = node->toWorkTree(builder);
 
 	BytecodeCompiler compiler;
 	auto p = compiler.compile(wt, &builder.getTypeSystem()).getInstructions();
@@ -68,7 +68,7 @@ void interpret() {
 
 		auto tks = tokenizer.tokenize(block);
 		try {
-			ASTInstruction *node = parser.parse(tks);
+			ASTStatement *node = parser.parse(tks);
 			run(node, builder);
 
 		} catch(SynthaxErrorException &e) {
@@ -89,11 +89,11 @@ void interpret() {
 }
 
 void test() {
-	core::String code = "def fib(a:Float):Float = {"
+	core::String code = "def fib(a:Int):Int = {"
 						"if(a < 1) return 1;"
 						"return fib(a - 1) + fib(a - 2);"
 						"}"
-						"var a:Float = 32;"
+						"var a:Int = 32;"
 						"a = fib(a);"
 						//"var f:Float;"
 						//"fib(f);"
@@ -110,11 +110,11 @@ void test() {
 	ClassBuilder builder(&types, &funcs);
 
 	try {
-		ASTInstruction *node = parser.parse(tks);
+		ASTStatement *node = parser.parse(tks);
 		std::cout << node->toString() << std::endl << std::endl << std::endl << std::endl;
 
 		node->lookupFunctions(builder);
-		WTInstruction *wt = node->toWorkTree(builder);
+		WTStatement *wt = node->toWorkTree(builder);
 
 		BytecodeCompiler compiler;
 		BytecodeAssembler ass = compiler.compile(wt, &types);
@@ -135,9 +135,9 @@ void test() {
 		Primitive ret = machine.run(ass.getInstructions().begin());
 
 		double time = timer.reset();
-		int cret = fib(32);
+		int64 cret = fib(32);
 		double ctime = timer.reset();
-		std::cout << std::endl << "return " << int64(ret.real) << " expected " << cret << std::endl << "eval = " << time * 1000 << "ms (vs " << ctime * 1000 << "ms)" << std::endl << std::endl;
+		std::cout << std::endl << "return " << int64(ret.integer) << " expected " << cret << std::endl << "eval = " << time * 1000 << "ms (vs " << ctime * 1000 << "ms)" << std::endl << std::endl;
 	} catch(SynthaxErrorException &e) {
 		std::cerr << e.what(code) << std::endl;
 	} catch(ValidationErrorException &e) {

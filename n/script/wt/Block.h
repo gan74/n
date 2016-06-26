@@ -23,12 +23,12 @@ namespace script {
 
 namespace wt {
 
-struct Block : public WTInstruction
+struct Block : public WTStatement
 {
-	Block(const core::Array<WTInstruction *> &i) : WTInstruction(WTNode::Block), instructions(i) {
+	Block(const core::Array<WTStatement *> &i) : WTStatement(WTNode::Block), instructions(i) {
 	}
 
-	core::Array<WTInstruction *> instructions;
+	core::Array<WTStatement *> instructions;
 };
 
 

@@ -23,9 +23,9 @@ namespace script {
 
 namespace wt {
 
-struct ExprInstr : public WTInstruction
+struct ExprInstr : public WTStatement
 {
-	ExprInstr(WTExpression *e) : WTInstruction(Expression), expression(e) {
+	ExprInstr(WTExpression *e) : WTStatement(Expression), expression(e) {
 	}
 
 	WTExpression *expression;

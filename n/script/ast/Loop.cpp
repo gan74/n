@@ -22,7 +22,7 @@ namespace n {
 namespace script {
 namespace ast {
 
-WTInstruction *ast::Loop::toWorkTree(ClassBuilder &builder, Scope &s) const {
+WTStatement *ast::Loop::toWorkTree(ClassBuilder &builder, Scope &s) const {
 	auto scope = s.nest();
 	WTExpression *c = condition->toWorkTree(builder, scope, scope.alloc());
 

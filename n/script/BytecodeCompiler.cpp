@@ -28,7 +28,7 @@ T *as(U *n) {
 BytecodeCompiler::BytecodeCompiler() {
 }
 
-BytecodeAssembler BytecodeCompiler::compile(WTInstruction *node, TypeSystem *ts) {
+BytecodeAssembler BytecodeCompiler::compile(WTStatement *node, TypeSystem *ts) {
 	BytecodeAssembler assembler;
 	Context context{
 		core::Map<WTFunction *, BytecodeAssembler>(),
@@ -48,11 +48,11 @@ BytecodeAssembler BytecodeCompiler::compile(WTInstruction *node, TypeSystem *ts)
 	return assembler;
 }
 
-void BytecodeCompiler::compile(Context &context, WTInstruction *node) {
+void BytecodeCompiler::compile(Context &context, WTStatement *node) {
 	switch(node->type) {
 
 		case WTNode::Block:
-			for(WTInstruction *i : as<wt::Block>(node)->instructions) {
+			for(WTStatement *i : as<wt::Block>(node)->instructions) {
 				compile(context, i);
 			}
 		return;

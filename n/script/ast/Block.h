@@ -24,22 +24,22 @@ namespace script {
 
 namespace ast {
 
-struct Block : public ASTInstruction
+struct Block : public ASTStatement
 {
-	Block(const core::Array<ASTInstruction *> &instrs) : ASTInstruction(instrs.isEmpty() ? TokenPosition() : instrs.first()->position), instructions(instrs) {
+	Block(const core::Array<ASTStatement *> &instrs) : ASTStatement(instrs.isEmpty() ? TokenPosition() : instrs.first()->position), instructions(instrs) {
 	}
 
-	const core::Array<ASTInstruction *> instructions;
+	const core::Array<ASTStatement *> instructions;
 
 	virtual core::String toString() const override {
 		core::String str;
-		for(ASTInstruction *i : instructions) {
+		for(ASTStatement *i : instructions) {
 			str += i->toString() + "\n";
 		}
 		return "{\n" + str + "}";
 	}
 
-	virtual WTInstruction *toWorkTree(ClassBuilder &builder, Scope &s) const override;
+	virtual WTStatement *toWorkTree(ClassBuilder &builder, Scope &s) const override;
 	virtual void lookupFunctions(ClassBuilder &builder) const override;
 };
 

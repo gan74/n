@@ -23,19 +23,19 @@ namespace script {
 
 namespace ast {
 
-struct Loop : public ASTInstruction
+struct Loop : public ASTStatement
 {
-	Loop(ASTExpression *cond, ASTInstruction *bod) : ASTInstruction(cond->position), condition(cond), body(bod) {
+	Loop(ASTExpression *cond, ASTStatement *bod) : ASTStatement(cond->position), condition(cond), body(bod) {
 	}
 
 	const ASTExpression *condition;
-	const ASTInstruction *body;
+	const ASTStatement *body;
 
 	virtual core::String toString() const override {
 		return "while(" + condition->toString() + ") " + body->toString();
 	}
 
-	virtual WTInstruction *toWorkTree(ClassBuilder &builder, Scope &s) const override;
+	virtual WTStatement *toWorkTree(ClassBuilder &builder, Scope &s) const override;
 	virtual void lookupFunctions(ClassBuilder &builder) const override;
 };
 
