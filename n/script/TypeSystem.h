@@ -29,6 +29,8 @@ class TypeSystem : NonCopyable
 	public:
 		TypeSystem();
 
+		DataType *operator[](const core::String &name) const;
+
 		DataType *getType(const core::String &name) const;
 		DataType *getIntType() const;
 		DataType *getFloatType() const;

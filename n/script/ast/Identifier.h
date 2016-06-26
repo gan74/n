@@ -34,7 +34,7 @@ struct Identifier : public ASTExpression
 		return name;
 	}
 
-	virtual WTExpression *toWorkTree(WTBuilder &builder, uint) const override;
+	virtual WTExpression *toWorkTree(ClassBuilder &builder, Scope &s, uint) const override;
 };
 
 }

@@ -15,15 +15,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **********************************/
 
 #include "Identifier.h"
-#include <n/script/WTBuilder.h>
+#include <n/script/ClassBuilder.h>
 #include <n/script/wt/wt.h>
 
 namespace n {
 namespace script {
 namespace ast {
 
-WTExpression *ast::Identifier::toWorkTree(WTBuilder &builder, uint) const {
-	return builder.getVar(name, position);
+WTExpression *ast::Identifier::toWorkTree(ClassBuilder &builder, Scope &s, uint) const {
+	return s[name];
 }
 
 }

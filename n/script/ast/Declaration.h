@@ -36,8 +36,8 @@ struct Declaration : public ASTInstruction
 		return "var " + name + ":" + typeName + (value ? " = " + value->toString() : core::String()) + ";";
 	}
 
-	virtual WTInstruction *toWorkTree(WTBuilder &builder) const override;
-	virtual void lookupFunctions(WTBuilder &) const override;
+	virtual WTInstruction *toWorkTree(ClassBuilder &builder, Scope &s) const override;
+	virtual void lookupFunctions(ClassBuilder &) const override;
 };
 
 }

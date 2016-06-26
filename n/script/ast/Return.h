@@ -34,8 +34,8 @@ struct Return : public ASTInstruction
 		return "return " + expression->toString() + ";";
 	}
 
-	virtual WTInstruction *toWorkTree(WTBuilder &builder) const override;
-	virtual void lookupFunctions(WTBuilder &) const override;
+	virtual WTInstruction *toWorkTree(ClassBuilder &builder, Scope &s) const override;
+	virtual void lookupFunctions(ClassBuilder &) const override;
 };
 
 }

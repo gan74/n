@@ -15,21 +15,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **********************************/
 
 #include "ExprInstr.h"
-#include <n/script/WTBuilder.h>
+#include <n/script/ClassBuilder.h>
 #include <n/script/wt/wt.h>
 
 namespace n {
 namespace script {
 namespace ast {
 
-WTInstruction *ast::ExprInstr::toWorkTree(WTBuilder &builder) const {
-	builder.enterScope();
-	N_SCOPE(builder.leaveScope());
+WTInstruction *ast::ExprInstr::toWorkTree(ClassBuilder &builder, Scope &s) const {
+	auto scope = s.nest();
 
-	return new wt::ExprInstr(expression->toWorkTree(builder, builder.allocRegister()));
+	return new wt::ExprInstr(expression->toWorkTree(builder, scope, scope.alloc()));
 }
 
-void ast::ExprInstr::lookupFunctions(WTBuilder &) const {
+void ast::ExprInstr::lookupFunctions(ClassBuilder &) const {
 }
 
 }

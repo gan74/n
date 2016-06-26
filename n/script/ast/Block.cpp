@@ -15,27 +15,25 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **********************************/
 
 #include "Block.h"
-#include <n/script/WTBuilder.h>
 #include <n/script/wt/wt.h>
 
 namespace n {
 namespace script {
 namespace ast {
 
-WTInstruction *ast::Block::toWorkTree(WTBuilder &builder) const {
-	builder.enterScope();
+WTInstruction *ast::Block::toWorkTree(ClassBuilder &builder, Scope &s) const {
+	auto scope = s.nest();
 	core::Array<WTInstruction *> in;
 	for(ASTInstruction *i : instructions) {
-		WTInstruction *ii = i->toWorkTree(builder);
+		WTInstruction *ii = i->toWorkTree(builder, scope);
 		if(ii) {
 			in.append(ii);
 		}
 	}
-	builder.leaveScope();
 	return new wt::Block(in);
 }
 
-void ast::Block::lookupFunctions(WTBuilder &builder) const {
+void ast::Block::lookupFunctions(ClassBuilder &builder) const {
 	for(ASTInstruction *i : instructions) {
 		i->lookupFunctions(builder);
 	}

@@ -15,28 +15,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **********************************/
 
 #include "Assignation.h"
-#include <n/script/WTBuilder.h>
 #include <n/script/wt/wt.h>
 
 namespace n {
 namespace script {
 namespace ast {
 
-static WTExpression *cast(WTExpression *expr, DataType *type, uint reg) {
-	return expr->expressionType == type ? expr : new wt::Cast(expr, type, reg);
-}
-
-static WTExpression *cast(WTExpression *expr, DataType *type, uint reg, WTBuilder &builder, TokenPosition position) {
-	if(!builder.getTypeSystem()->assign(type, expr->expressionType)) {
-		throw ValidationErrorException("Assignation of incompatible types", position);
-	}
-	return cast(expr, type, reg);
-}
-
-WTExpression *Assignation::toWorkTree(WTBuilder &builder, uint) const {
-	WTVariable *v = builder.getVar(name, position);
-	WTExpression *val = value->toWorkTree(builder, v->registerIndex);
-	return new wt::Assignation(v, cast(val, v->expressionType, v->registerIndex, builder, position));
+WTExpression *Assignation::toWorkTree(ClassBuilder &builder, Scope &scope, uint) const {
+	WTVariable *v = scope[name];
+	WTExpression *val = value->toWorkTree(builder, scope, v->registerIndex);
+	return new wt::Assignation(v, builder.cast(val, v->expressionType, v->registerIndex));
 }
 
 

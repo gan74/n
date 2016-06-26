@@ -15,7 +15,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **********************************/
 
 #include "BinOp.h"
-#include <n/script/WTBuilder.h>
+#include <n/script/ClassBuilder.h>
+#include <n/script/ValidationErrorException.h>
 #include <n/script/wt/wt.h>
 
 namespace n {
@@ -29,60 +30,46 @@ static DataType *notNull(DataType *t, const TokenPosition &p) {
 	return t;
 }
 
-static WTExpression *cast(WTExpression *expr, DataType *type, uint reg) {
-	return expr->expressionType == type ? expr : new wt::Cast(expr, type, reg);
-}
+WTExpression *ast::BinOp::toWorkTree(ClassBuilder &builder, Scope &s, uint workReg) const {
+	auto scope = s.nest();
+	WTExpression *l = lhs->toWorkTree(builder, scope, workReg);
 
-static WTExpression *cast(WTExpression *expr, DataType *type, uint reg, WTBuilder &builder, TokenPosition position) {
-	if(!builder.getTypeSystem()->assign(type, expr->expressionType)) {
-		throw ValidationErrorException("Assignation of incompatible types", position);
-	}
-	return cast(expr, type, reg);
-}
-
-
-WTExpression *ast::BinOp::toWorkTree(WTBuilder &builder, uint workReg) const {
-	builder.enterScope();
-	WTExpression *l = lhs->toWorkTree(builder, workReg);
-	builder.leaveScope();
-
-	builder.enterScope();
-	uint rReg = builder.allocRegister();
-	WTExpression *r = rhs->toWorkTree(builder, rReg);
-	builder.leaveScope();
+	scope = s.nest();
+	uint rReg = scope.alloc();
+	WTExpression *r = rhs->toWorkTree(builder, scope, rReg);
 
 	DataType *t = 0;
 	switch(type) {
 
 		case Token::Plus:
-			t = notNull(builder.getTypeSystem()->add(l->expressionType, r->expressionType), position);
-			return new wt::BinOp(WTNode::Add, cast(l, t, workReg), cast(r, t, rReg), t, workReg);
+			t = notNull(builder.getTypeSystem().add(l->expressionType, r->expressionType), position);
+			return new wt::BinOp(WTNode::Add, builder.cast(l, t, workReg), builder.cast(r, t, rReg), t, workReg);
 
 		case Token::Minus:
-			t = notNull(builder.getTypeSystem()->sub(l->expressionType, r->expressionType), position);
-			return new wt::BinOp(WTNode::Substract, cast(l, t, workReg), cast(r, t, rReg), t, workReg);
+			t = notNull(builder.getTypeSystem().sub(l->expressionType, r->expressionType), position);
+			return new wt::BinOp(WTNode::Substract, builder.cast(l, t, workReg), builder.cast(r, t, rReg), t, workReg);
 
 		case Token::Multiply:
-			t = notNull(builder.getTypeSystem()->mul(l->expressionType, r->expressionType), position);
-			return new wt::BinOp(WTNode::Multiply, cast(l, t, workReg), cast(r, t, rReg), t, workReg);
+			t = notNull(builder.getTypeSystem().mul(l->expressionType, r->expressionType), position);
+			return new wt::BinOp(WTNode::Multiply, builder.cast(l, t, workReg), builder.cast(r, t, rReg), t, workReg);
 
 		case Token::Divide:
-			t = notNull(builder.getTypeSystem()->div(l->expressionType, r->expressionType), position);
-			return new wt::BinOp(WTNode::Divide, cast(l, t, workReg), cast(r, t, rReg), t, workReg);
+			t = notNull(builder.getTypeSystem().div(l->expressionType, r->expressionType), position);
+			return new wt::BinOp(WTNode::Divide, builder.cast(l, t, workReg), builder.cast(r, t, rReg), t, workReg);
 
 		case Token::LessThan:
-			t = notNull(builder.getTypeSystem()->less(l->expressionType, r->expressionType), position);
-			return new wt::BinOp(WTNode::LessThan, cast(l, t, workReg), cast(r, t, rReg), t, workReg);
+			t = notNull(builder.getTypeSystem().less(l->expressionType, r->expressionType), position);
+			return new wt::BinOp(WTNode::LessThan, builder.cast(l, t, workReg), builder.cast(r, t, rReg), t, workReg);
 
 		case Token::GreaterThan:
-			t = notNull(builder.getTypeSystem()->greater(l->expressionType, r->expressionType), position);
-			return new wt::BinOp(WTNode::GreaterThan, cast(l, t, workReg), cast(r, t, rReg), t, workReg);
+			t = notNull(builder.getTypeSystem().greater(l->expressionType, r->expressionType), position);
+			return new wt::BinOp(WTNode::GreaterThan, builder.cast(l, t, workReg), builder.cast(r, t, rReg), t, workReg);
 
 		case Token::Equals:
-			return new wt::BinOp(WTNode::Equals, l, r, builder.getTypeSystem()->getIntType(), workReg);
+			return new wt::BinOp(WTNode::Equals, l, r, builder.getTypeSystem().getIntType(), workReg);
 
 		case Token::NotEquals:
-			return new wt::BinOp(WTNode::NotEquals, l, r, builder.getTypeSystem()->getIntType(), workReg);
+			return new wt::BinOp(WTNode::NotEquals, l, r, builder.getTypeSystem().getIntType(), workReg);
 
 		default:
 		break;

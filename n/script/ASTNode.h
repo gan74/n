@@ -17,6 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define N_SCRIPT_ASTNODE_H
 
 #include <n/core/String.h>
+#include "ClassBuilder.h"
 #include "Token.h"
 
 namespace n {
@@ -24,7 +25,6 @@ namespace script {
 
 class WTExpression;
 class WTInstruction;
-class WTBuilder;
 
 struct ASTNode : NonCopyable
 {
@@ -37,7 +37,6 @@ struct ASTNode : NonCopyable
 	const TokenPosition position;
 
 	virtual core::String toString() const = 0;
-	//virtual void resolveFunctions(WTBuilder &) const = 0;
 };
 
 struct ASTExpression : public ASTNode
@@ -45,7 +44,7 @@ struct ASTExpression : public ASTNode
 	ASTExpression(const TokenPosition &pos) : ASTNode(pos) {
 	}
 
-	virtual WTExpression *toWorkTree(WTBuilder &, uint workReg) const = 0;
+	virtual WTExpression *toWorkTree(ClassBuilder &, Scope &, uint) const = 0;
 };
 
 struct ASTInstruction : public ASTNode
@@ -53,8 +52,12 @@ struct ASTInstruction : public ASTNode
 	ASTInstruction(const TokenPosition &pos) : ASTNode(pos) {
 	}
 
-	virtual WTInstruction *toWorkTree(WTBuilder &) const = 0;
-	virtual void lookupFunctions(WTBuilder &) const = 0;
+	WTInstruction *toWorkTree(ClassBuilder &builder) const {
+		return toWorkTree(builder, builder.getScope());
+	}
+
+	virtual WTInstruction *toWorkTree(ClassBuilder &, Scope &) const = 0;
+	virtual void lookupFunctions(ClassBuilder &) const = 0;
 };
 
 }

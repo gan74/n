@@ -15,30 +15,27 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **********************************/
 
 #include "Branch.h"
-#include <n/script/WTBuilder.h>
+#include <n/script/ClassBuilder.h>
 #include <n/script/wt/wt.h>
 
 namespace n {
 namespace script {
 namespace ast {
 
-WTInstruction *ast::Branch::toWorkTree(WTBuilder &builder) const {
-	builder.enterScope();
-	WTExpression *c = condition->toWorkTree(builder, builder.allocRegister());
-	builder.leaveScope();
+WTInstruction *ast::Branch::toWorkTree(ClassBuilder &builder, Scope &s) const {
+	auto scope = s.nest();
+	WTExpression *c = condition->toWorkTree(builder, scope, scope.alloc());
 
-	builder.enterScope();
-	WTInstruction *t = thenBody->toWorkTree(builder);
-	builder.leaveScope();
+	scope = s.nest();
+	WTInstruction *t = thenBody->toWorkTree(builder, scope);
 
-	builder.enterScope();
-	WTInstruction *e = elseBody ? elseBody->toWorkTree(builder) : 0;
-	builder.leaveScope();
+	scope = s.nest();
+	WTInstruction *e = elseBody ? elseBody->toWorkTree(builder, scope) : 0;
 
 	return new wt::Branch(c, t, e);
 }
 
-void ast::Branch::lookupFunctions(WTBuilder &builder) const {
+void ast::Branch::lookupFunctions(ClassBuilder &builder) const {
 	thenBody->lookupFunctions(builder);
 	if(elseBody) {
 		elseBody->lookupFunctions(builder);

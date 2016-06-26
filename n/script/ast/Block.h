@@ -39,8 +39,8 @@ struct Block : public ASTInstruction
 		return "{\n" + str + "}";
 	}
 
-	virtual WTInstruction *toWorkTree(WTBuilder &builder) const override;
-	virtual void lookupFunctions(WTBuilder &builder) const override;
+	virtual WTInstruction *toWorkTree(ClassBuilder &builder, Scope &s) const override;
+	virtual void lookupFunctions(ClassBuilder &builder) const override;
 };
 
 }

@@ -13,51 +13,40 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **********************************/
-#ifndef N_SCRIPT_VARIABLESTACK_H
-#define N_SCRIPT_VARIABLESTACK_H
+#ifndef N_SCRIPT_CLASSBUILDER_H
+#define N_SCRIPT_CLASSBUILDER_H
 
-#include <n/core/Map.h>
-#include <n/core/String.h>
-#include <n/core/SmartPtr.h>
 #include "TypeSystem.h"
+#include "Scope.h"
+#include "FunctionTable.h"
+#include "WTNode.h"
 
 namespace n {
 namespace script {
 
-class WTVariable;
-
-class VariableStack : NonCopyable
+class ClassBuilder
 {
-	using VMap = core::Map<core::String, WTVariable *>;
-
 	public:
-		class Scope : NonCopyable
-		{
-			public:
-				~Scope();
+		ClassBuilder(TypeSystem *t, FunctionTable *f, WTFunction *s = 0);
+		~ClassBuilder();
 
-				WTVariable *declare(const core::String &name, DataType *type);
-				uint alloc();
+		FunctionTable &getMethods();
+		TypeSystem &getTypeSystem();
+		Scope &getScope();
 
-			private:
-				Scope(VariableStack *stk);
+		WTExpression *cast(WTExpression *expr, DataType *type, uint reg) const;
 
-				uint reg;
-				VariableStack *stack;
-				core::Array<VMap::iterator> scopedVars;
-		};
+		WTFunction *getCurrentFunction() const;
 
-		VariableStack();
-
-		WTVariable *operator[](const core::String &name) const;
 
 	private:
-		uint reg;
-		VMap variables;
+		WTFunction *current;
 
+		TypeSystem *typeSystem;
+		FunctionTable *methods;
+		Scope scope;
 };
 
 }
 }
-
-#endif // N_SCRIPT_VARIABLESTACK_H
+#endif // CLASSBUILDER_H

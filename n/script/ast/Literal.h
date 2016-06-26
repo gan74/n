@@ -34,7 +34,7 @@ struct Literal : public ASTExpression
 		return value.string;
 	}
 
-	virtual WTExpression *toWorkTree(WTBuilder &builder, uint workReg) const override;
+	virtual WTExpression *toWorkTree(ClassBuilder &builder, Scope &, uint workReg) const override;
 };
 
 }

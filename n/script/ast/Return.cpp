@@ -15,39 +15,28 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **********************************/
 
 #include "Return.h"
-#include <n/script/WTBuilder.h>
+#include <n/script/ClassBuilder.h>
+#include <n/script/ValidationErrorException.h>
 #include <n/script/wt/wt.h>
 
 namespace n {
 namespace script {
 namespace ast {
 
-static WTExpression *cast(WTExpression *expr, DataType *type, uint reg) {
-	return expr->expressionType == type ? expr : new wt::Cast(expr, type, reg);
-}
-
-static WTExpression *cast(WTExpression *expr, DataType *type, uint reg, WTBuilder &builder, TokenPosition position) {
-	if(!builder.getTypeSystem()->assign(type, expr->expressionType)) {
-		throw ValidationErrorException("Assignation of incompatible types", position);
-	}
-	return cast(expr, type, reg);
-}
-
-WTInstruction *ast::Return::toWorkTree(WTBuilder &builder) const {
+WTInstruction *ast::Return::toWorkTree(ClassBuilder &builder, Scope &s) const {
 	WTFunction *function = builder.getCurrentFunction();
 	if(!function) {
 		throw ValidationErrorException("return statement outside function", position);
 	}
 	#warning function may not have a return statement
 
-	builder.enterScope();
-	N_SCOPE(builder.leaveScope());
+	auto scope = s.nest();
 
-	uint reg = builder.allocRegister();
-	return new wt::Return(cast(expression->toWorkTree(builder, reg), function->returnType, reg, builder, position));
+	uint reg = scope.alloc();
+	return new wt::Return(builder.cast(expression->toWorkTree(builder, scope, reg), function->returnType, reg));
 }
 
-void ast::Return::lookupFunctions(WTBuilder &) const {
+void ast::Return::lookupFunctions(ClassBuilder &) const {
 }
 
 }

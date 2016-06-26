@@ -15,17 +15,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **********************************/
 
 #include "Literal.h"
-#include <n/script/WTBuilder.h>
+#include <n/script/ClassBuilder.h>
+#include <n/script/ValidationErrorException.h>
 #include <n/script/wt/wt.h>
 
 namespace n {
 namespace script {
 namespace ast {
 
-WTExpression *ast::Literal::toWorkTree(WTBuilder &builder, uint workReg) const {
+WTExpression *ast::Literal::toWorkTree(ClassBuilder &builder, Scope &, uint workReg) const {
 	switch(value.type) {
 		case Token::Integer:
-			return new wt::Int(value.string.to<int64>(), builder.getTypeSystem()->getIntType(), workReg);
+			return new wt::Int(value.string.to<int64>(), builder.getTypeSystem().getIntType(), workReg);
 
 		default:
 		break;

@@ -35,7 +35,7 @@ struct Assignation : public ASTExpression
 		return name + " = " + value->toString();
 	}
 
-	virtual WTExpression *toWorkTree(WTBuilder &builder, uint) const override;
+	virtual WTExpression *toWorkTree(ClassBuilder &builder, Scope &scope, uint) const override;
 };
 
 }

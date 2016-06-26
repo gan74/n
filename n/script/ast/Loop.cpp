@@ -15,22 +15,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **********************************/
 
 #include "Loop.h"
-#include <n/script/WTBuilder.h>
+#include <n/script/ClassBuilder.h>
 #include <n/script/wt/wt.h>
 
 namespace n {
 namespace script {
 namespace ast {
 
-WTInstruction *ast::Loop::toWorkTree(WTBuilder &builder) const {
-	builder.enterScope();
-	WTExpression *c = condition->toWorkTree(builder, builder.allocRegister());
-	builder.leaveScope();
+WTInstruction *ast::Loop::toWorkTree(ClassBuilder &builder, Scope &s) const {
+	auto scope = s.nest();
+	WTExpression *c = condition->toWorkTree(builder, scope, scope.alloc());
 
-	return new wt::Loop(c, body->toWorkTree(builder));
+	scope = s.nest();
+	return new wt::Loop(c, body->toWorkTree(builder, scope));
 }
 
-void ast::Loop::lookupFunctions(WTBuilder &builder) const {
+void ast::Loop::lookupFunctions(ClassBuilder &builder) const {
 	body->lookupFunctions(builder);
 }
 

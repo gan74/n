@@ -15,38 +15,43 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **********************************/
 
 #include "FunctionDeclaration.h"
-#include <n/script/WTBuilder.h>
+#include <n/script/ClassBuilder.h>
+#include <n/script/ValidationErrorException.h>
 #include <n/script/wt/wt.h>
 
 namespace n {
 namespace script {
 namespace ast {
 
-WTInstruction *ast::FunctionDeclaration::toWorkTree(WTBuilder &builder) const {
-	WTFunction *function = builder.getFunc(name, position);
-	builder.enterFunction(function);
-	function->body = body->toWorkTree(builder);
-	builder.leaveFunction();
+WTInstruction *ast::FunctionDeclaration::toWorkTree(ClassBuilder &builder, Scope &) const {
+	WTFunction *function = builder.getMethods()[name];
+
+	ClassBuilder b(&builder.getTypeSystem(), &builder.getMethods(), function);
+
+	for(WTVariable *a : function->args) {
+		b.getScope().declare(a);
+	}
+	function->body = body->toWorkTree(b);
 	return 0;
 }
 
-void ast::FunctionDeclaration::lookupFunctions(WTBuilder &builder) const {
-	builder.enterFunction();
+void ast::FunctionDeclaration::lookupFunctions(ClassBuilder &builder) const {
+	ClassBuilder b(&builder.getTypeSystem(), &builder.getMethods());
+
 	core::Array<WTVariable *> arg;
 	for(ast::Declaration *d : args) {
 		if(d->value) {
 			throw ValidationErrorException("Function parameter \"" + d->name + "\" should not have a value", position);
 		}
-		arg.append(builder.declareVar(d->name, d->typeName, d->position));
+		arg.append(b.getScope().declare(d->name, builder.getTypeSystem()[d->typeName]));
 	}
-	builder.leaveFunction();
 
-	DataType *ret = builder.getTypeSystem()->getType(retTypeName);
+	DataType *ret = builder.getTypeSystem()[retTypeName];
 	if(!ret) {
 		throw ValidationErrorException("\"" + retTypeName + "\" was not declared in this scope", position);
 	}
 
-	builder.declareFunc(name, arg, ret, position);
+	builder.getMethods().declare(name, arg, ret);
 }
 }
 }

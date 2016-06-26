@@ -37,7 +37,7 @@ struct BinOp : public ASTExpression
 		return "(" + lhs->toString() + " "  + Token::getName(type) + " " + rhs->toString() + ")";
 	}
 
-	virtual WTExpression *toWorkTree(WTBuilder &builder, uint workReg) const override;
+	virtual WTExpression *toWorkTree(ClassBuilder &builder, Scope &s, uint workReg) const override;
 };
 
 }

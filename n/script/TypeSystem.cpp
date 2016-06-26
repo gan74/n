@@ -23,6 +23,10 @@ TypeSystem::TypeSystem() {
 	addType(new FloatDataType());
 }
 
+DataType *TypeSystem::operator[](const core::String &name) const {
+	return getType(name);
+}
+
 void TypeSystem::addType(DataType *type) {
 	types[type->getName()] = type;
 }

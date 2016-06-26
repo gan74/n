@@ -15,40 +15,27 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **********************************/
 
 #include "Declaration.h"
-#include <n/script/WTBuilder.h>
+#include <n/script/ClassBuilder.h>
 #include <n/script/wt/wt.h>
 
 namespace n {
 namespace script {
 namespace ast {
 
-static WTExpression *cast(WTExpression *expr, DataType *type, uint reg) {
-	return expr->expressionType == type ? expr : new wt::Cast(expr, type, reg);
-}
+WTInstruction *ast::Declaration::toWorkTree(ClassBuilder &builder, Scope &s) const {
+	WTVariable *var = s.declare(name, builder.getTypeSystem()[typeName]);
 
-static WTExpression *cast(WTExpression *expr, DataType *type, uint reg, WTBuilder &builder, TokenPosition position) {
-	if(!builder.getTypeSystem()->assign(type, expr->expressionType)) {
-		throw ValidationErrorException("Assignation of incompatible types", position);
-	}
-	return cast(expr, type, reg);
-}
-
-WTInstruction *ast::Declaration::toWorkTree(WTBuilder &builder) const {
-	WTVariable *var = builder.declareVar(name, typeName, position);
-
-	builder.enterScope();
+	auto scope = s.nest();
 	WTExpression *val = 0;
 	if(value) {
-		val = cast(value->toWorkTree(builder, var->registerIndex), var->expressionType, var->registerIndex, builder, position);
+		val = builder.cast(value->toWorkTree(builder, scope, var->registerIndex), var->expressionType, var->registerIndex);
 	} else {
-		val = new wt::Int(0, builder.getTypeSystem()->getIntType(), var->registerIndex);
+		val = new wt::Int(0, builder.getTypeSystem().getIntType(), var->registerIndex);
 	}
-	builder.leaveScope();
-
 	return new wt::ExprInstr(new wt::Assignation(var, val));
 }
 
-void ast::Declaration::lookupFunctions(WTBuilder &) const {
+void ast::Declaration::lookupFunctions(ClassBuilder &) const {
 }
 
 }

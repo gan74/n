@@ -7,7 +7,8 @@
 #include <n/io/Dir.h>
 #include <iostream>
 #include <n/script/WTNode.h>
-#include <n/script/WTBuilder.h>
+#include <n/script/ClassBuilder.h>
+#include <n/script/ValidationErrorException.h>
 #include <n/script/BytecodeCompiler.h>
 #include <n/script/Machine.h>
 
@@ -28,12 +29,12 @@ int fib(volatile int a) {
 	return fib(a - 1) + fib(a - 2);
 }
 
-void run(ASTInstruction *node, WTBuilder &builder) {
+void run(ASTInstruction *node, ClassBuilder &builder) {
 	node->lookupFunctions(builder);
 	WTInstruction *wt = node->toWorkTree(builder);
 
 	BytecodeCompiler compiler;
-	auto p = compiler.compile(wt, builder.getTypeSystem()).getInstructions();
+	auto p = compiler.compile(wt, &builder.getTypeSystem()).getInstructions();
 
 	Machine m;
 	m.load(p.begin(), p.end());
@@ -50,7 +51,10 @@ int main(int, char **) {
 void interpret() {
 	Tokenizer tokenizer;
 	Parser parser;
-	WTBuilder builder;
+
+	TypeSystem types;
+	FunctionTable funcs;
+	ClassBuilder builder(&types, &funcs);
 
 	String block;
 
@@ -100,7 +104,10 @@ void test() {
 	auto tks = tokenizer.tokenize(code);
 
 	Parser parser;
-	WTBuilder builder;
+
+	TypeSystem types;
+	FunctionTable funcs;
+	ClassBuilder builder(&types, &funcs);
 
 	try {
 		ASTInstruction *node = parser.parse(tks);
@@ -110,7 +117,7 @@ void test() {
 		WTInstruction *wt = node->toWorkTree(builder);
 
 		BytecodeCompiler compiler;
-		BytecodeAssembler ass = compiler.compile(wt, builder.getTypeSystem());
+		BytecodeAssembler ass = compiler.compile(wt, &types);
 
 
 		uint index = 0;
@@ -130,7 +137,7 @@ void test() {
 		double time = timer.reset();
 		int cret = fib(32);
 		double ctime = timer.reset();
-		std::cout << std::endl << "return " << ret.real << " expected " << cret << std::endl << "eval = " << time * 1000 << "ms (vs " << ctime * 1000 << "ms)" << std::endl << std::endl;
+		std::cout << std::endl << "return " << int64(ret.real) << " expected " << cret << std::endl << "eval = " << time * 1000 << "ms (vs " << ctime * 1000 << "ms)" << std::endl << std::endl;
 	} catch(SynthaxErrorException &e) {
 		std::cerr << e.what(code) << std::endl;
 	} catch(ValidationErrorException &e) {

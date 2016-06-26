@@ -13,39 +13,47 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **********************************/
-#ifndef N_SCRIPT_AST_CALL_H
-#define N_SCRIPT_AST_CALL_H
+#ifndef N_SCRIPT_SCOPE_H
+#define N_SCRIPT_SCOPE_H
 
-#include <n/script/ASTNode.h>
-#include <n/core/Array.h>
+#include <n/core/String.h>
+#include "TypeSystem.h"
 
 namespace n {
 namespace script {
 
-namespace ast {
+class WTVariable;
 
-struct Call : public ASTExpression
+class Scope : NonCopyable
 {
-	Call(const core::String &id, const core::Array<ASTExpression *> &args, const TokenPosition &tk) : ASTExpression(tk), name(id), args(args) {
-	}
+	public:
+		Scope();
+		Scope(Scope &&s);
+		Scope &operator=(Scope &&s);
 
-	const core::String name;
-	const core::Array<ASTExpression *> args;
 
-	virtual core::String toString() const override {
-		core::String a;
-		for(ASTExpression *e : args) {
-			a += e->toString() + " ";
-		}
-		return name + "( " + a + ")";
-	}
+		WTVariable *declare(const core::String &name, DataType *type);
+		WTVariable *declare(WTVariable *var);
+		uint alloc();
 
-	virtual WTExpression *toWorkTree(ClassBuilder &builder, Scope &s, uint workReg) const override;
+		WTVariable *operator[](const core::String &name) const;
+
+		Scope nest();
+
+	private:
+		Scope(Scope *p);
+
+		void updateStackSize();
+		bool isTop() const;
+
+		Scope *parent;
+		Scope *top;
+
+		uint reg;
+		uint stackSize;
+		core::Map<core::String, WTVariable *> variables;
 };
 
 }
-
 }
-}
-
-#endif // N_SCRIPT_AST_CALL_H
+#endif // N_SCRIPT_SCOPE_H

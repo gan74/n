@@ -15,41 +15,26 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **********************************/
 
 #include "Call.h"
-#include <n/script/WTBuilder.h>
+#include <n/script/ValidationErrorException.h>
+#include <n/script/ClassBuilder.h>
 #include <n/script/wt/wt.h>
 
 namespace n {
 namespace script {
 namespace ast {
 
-static WTExpression *cast(WTExpression *expr, DataType *type, uint reg) {
-	return expr->expressionType == type ? expr : new wt::Cast(expr, type, reg);
-}
-
-static WTExpression *cast(WTExpression *expr, DataType *type, uint reg, WTBuilder &builder, TokenPosition position) {
-	if(!builder.getTypeSystem()->assign(type, expr->expressionType)) {
-		throw ValidationErrorException("Assignation of incompatible types", position);
-	}
-	return cast(expr, type, reg);
-}
-
-WTExpression *ast::Call::toWorkTree(WTBuilder &builder, uint workReg) const {
-	WTFunction *function = builder.getFunc(name, position);
+WTExpression *ast::Call::toWorkTree(ClassBuilder &builder, Scope &s, uint workReg) const {
+	WTFunction *function = builder.getMethods()[name];
 	if(function->args.size() != args.size()) {
 		throw ValidationErrorException("Wrong number of argument (expected " + core::String(function->args.size()) + " got " + core::String(args.size()) + ")", position);
 	}
 
 	core::Array<WTExpression *> arg;
 	for(uint i = 0; i != args.size(); i++) {
-		builder.enterScope();
-		uint reg = builder.allocRegister();
-		WTExpression *ex = cast(args[i]->toWorkTree(builder, reg),
-								function->args[i]->expressionType,
-								reg,
-								builder,
-								position);
+		auto scope = s.nest();
+		uint reg = scope.alloc();
+		WTExpression *ex = builder.cast(args[i]->toWorkTree(builder, scope, reg), function->args[i]->expressionType, reg);
 		arg << ex;
-		builder.leaveScope();
 	}
 
 	return new wt::Call(function, arg, workReg);
