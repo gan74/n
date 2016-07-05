@@ -24,7 +24,10 @@ namespace script {
 namespace ast {
 
 WTExpression *ast::Call::toWorkTree(ClassBuilder &builder, Scope &s, uint workReg) const {
-	WTFunction *function = builder.getMethods()[name];
+	WTFunction *function = builder.getFunctions()[name];
+	if(!function) {
+		throw ValidationErrorException("\"" + name + "\" was not declared in this scope", position);
+	}
 	if(function->args.size() != args.size()) {
 		throw ValidationErrorException("Wrong number of argument (expected " + core::String(function->args.size()) + " got " + core::String(args.size()) + ")", position);
 	}
@@ -33,7 +36,7 @@ WTExpression *ast::Call::toWorkTree(ClassBuilder &builder, Scope &s, uint workRe
 	for(uint i = 0; i != args.size(); i++) {
 		auto scope = s.nest();
 		uint reg = scope.alloc();
-		WTExpression *ex = builder.cast(args[i]->toWorkTree(builder, scope, reg), function->args[i]->expressionType, reg);
+		WTExpression *ex = builder.cast(args[i]->toWorkTree(builder, scope, reg), function->args[i]->expressionType, reg, args[i]->position);
 		arg << ex;
 	}
 

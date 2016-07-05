@@ -27,24 +27,26 @@ namespace script {
 class ClassBuilder
 {
 	public:
-		ClassBuilder(TypeSystem *t, FunctionTable *f, WTFunction *s = 0);
+		ClassBuilder(TypeSystem *t, WTClass *c);
 		~ClassBuilder();
 
-		FunctionTable &getMethods();
+		ClassBuilder(const ClassBuilder &b, WTFunction *f);
+		ClassBuilder(const ClassBuilder &b, WTClass *c);
+
+		FunctionTable &getFunctions();
 		TypeSystem &getTypeSystem();
 		Scope &getScope();
 
-		WTExpression *cast(WTExpression *expr, DataType *type, uint reg) const;
+		WTExpression *cast(WTExpression *expr, DataType *type, uint reg, const TokenPosition &pos = TokenPosition()) const;
 
 		WTFunction *getCurrentFunction() const;
-
+		WTClass *getCurrentClass() const;
 
 	private:
 		WTFunction *current;
+		WTClass *currentClass;
 
 		TypeSystem *typeSystem;
-		FunctionTable *methods;
-		Scope scope;
 };
 
 }

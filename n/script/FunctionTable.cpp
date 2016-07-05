@@ -28,11 +28,11 @@ FunctionTable::~FunctionTable() {
 	}*/
 }
 
-WTFunction *FunctionTable::declare(const core::String &name, const core::Array<WTVariable *> &arguments, DataType *returnType) {
+WTFunction *FunctionTable::declare(const core::String &name, DataType *returnType) {
 	if(functions.exists(name)) {
 		return 0;
 	}
-	WTFunction *f = new WTFunction(name, arguments, returnType, functions.size());
+	WTFunction *f = new WTFunction(name, returnType, functions.size());
 	return functions[name] = f;
 }
 

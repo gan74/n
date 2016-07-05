@@ -19,6 +19,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <n/core/String.h>
 #include <n/core/Array.h>
 #include "DataType.h"
+#include "FunctionTable.h"
+#include "Scope.h"
 
 
 namespace n {
@@ -90,7 +92,7 @@ struct WTVariable : public WTExpression
 
 struct WTFunction : NonCopyable
 {
-	WTFunction(const core::String &n, const core::Array<WTVariable *> &arg, DataType *ret, uint ind, WTStatement *bod = 0) : name(n), body(bod), args(arg), returnType(ret), stackSize(0), index(ind) {
+	WTFunction(const core::String &n, DataType *ret, uint ind, WTStatement *bod = 0) : name(n), body(bod), returnType(ret), index(ind) {
 	}
 
 	core::String name;
@@ -98,8 +100,20 @@ struct WTFunction : NonCopyable
 	core::Array<WTVariable *> args;
 	DataType *returnType;
 
-	uint stackSize;
+	Scope scope;
+
 	uint index;
+};
+
+struct WTClass : NonCopyable
+{
+	WTClass(const core::String &n) : name(n) {
+	}
+
+	core::String name;
+	FunctionTable methods;
+
+	Scope scope;
 };
 
 }

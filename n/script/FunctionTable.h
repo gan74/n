@@ -34,7 +34,7 @@ class FunctionTable : NonCopyable
 		FunctionTable();
 		~FunctionTable();
 
-		WTFunction *declare(const core::String &name, const core::Array<WTVariable *> &arguments, DataType *returnType);
+		WTFunction *declare(const core::String &name, DataType *returnType);
 		WTFunction *operator[](const core::String &name) const;
 
 	private:

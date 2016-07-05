@@ -79,6 +79,10 @@ WTVariable *Scope::operator[](const core::String &name) const {
 	return 0;
 }
 
+const core::Map<core::String, WTVariable *> &Scope::getScopedVariables() const {
+	return variables;
+}
+
 void Scope::updateStackSize() {
 	stackSize = std::max(stackSize, reg);
 	top->stackSize = std::max(top->stackSize, stackSize);
@@ -92,6 +96,16 @@ uint Scope::alloc() {
 
 uint Scope::getStackSize() const {
 	return top->stackSize;
+}
+
+uint Scope::getVarCount() const {
+	uint c = 0;
+	const Scope *s = this;
+	while(s) {
+		c += s->variables.size();
+		s = s->parent;
+	}
+	return c;
 }
 
 

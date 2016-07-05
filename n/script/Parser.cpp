@@ -183,6 +183,14 @@ static ASTStatement *parseInstruction(core::Array<Token>::const_iterator &begin,
 			return new ast::FunctionDeclaration(name, retType, args, parseInstruction(begin, end));
 		} break;
 
+		case Token::Class: {
+			expect(++begin, {Token::Identifier});
+			Token id = *begin++;
+			eat(begin, {Token::Assign});
+			expect(begin, {Token::LeftBrace});
+			return new ast::Class(id.string, parseInstruction(begin, end), id.position);
+		} break;
+
 		case Token::Return:
 			begin++;
 			instr = new ast::Return(parseExpr(begin, end));

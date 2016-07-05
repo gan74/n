@@ -46,59 +46,14 @@ void run(ASTStatement *node, ClassBuilder &builder) {
 
 
 int main(int, char **) {
-	test();
-	return 0;
-}
-
-void interpret() {
-	Tokenizer tokenizer;
-	Parser parser;
-
-	TypeSystem types;
-	FunctionTable funcs;
-	ClassBuilder builder(&types, &funcs);
-
-	String block;
-
-	char line[256];
-
-	std::cout << ">>> ";
-	for(;;) {
-
-		std::cin.getline(line, 256);
-		block += line;
-
-		auto tks = tokenizer.tokenize(block);
-		try {
-			ASTStatement *node = parser.parse(tks);
-			run(node, builder);
-
-		} catch(SynthaxErrorException &e) {
-			if(e.getToken().type == Token::End && !e.getExpected().exists(Token::SemiColon)) {
-				std::cout << "    ";
-				block += '\n';
-				continue;
-			}
-			std::cerr << e.what(block) << std::endl;
-		} catch(ValidationErrorException &e) {
-			std::cerr << e.what(block) << std::endl;
-		}
-
-		block = "";
-		std::cout << ">>> ";
-	}
-
-}
-
-void test() {
-	core::String code = "def fib(a:Int):Int = {"
+	core::String code = //"class App = {"
+						"def fib(a:Int):Int = {"
 						"if(a < 1) return 1;"
 						"return fib(a - 1) + fib(a - 2);"
 						"}"
+						//"}"
 						"var a:Int = 32;"
 						"a = fib(a);"
-						//"var f:Float;"
-						//"fib(f);"
 						;
 
 
@@ -108,13 +63,15 @@ void test() {
 	Parser parser;
 
 	TypeSystem types;
-	FunctionTable funcs;
-	ClassBuilder builder(&types, &funcs);
+	WTClass global("#");
 
 	try {
 		ASTStatement *node = parser.parse(tks);
 		std::cout << node->toString() << std::endl << std::endl << std::endl << std::endl;
 
+		node->lookupTypes(types);
+
+		ClassBuilder builder(&types, &global);
 		node->lookupFunctions(builder);
 		WTStatement *wt = node->toWorkTree(builder);
 
@@ -145,6 +102,9 @@ void test() {
 	} catch(ValidationErrorException &e) {
 		std::cerr << e.what(code) << std::endl;
 	}
+
+
+	return 0;
 }
 
 

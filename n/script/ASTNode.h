@@ -58,6 +58,9 @@ struct ASTStatement : public ASTNode
 
 	virtual WTStatement *toWorkTree(ClassBuilder &, Scope &) const = 0;
 	virtual void lookupFunctions(ClassBuilder &) const = 0;
+	virtual void lookupTypes(TypeSystem &) const {
+		logMsg("ASTStatement::lookupTypes(TypeSystem &) const called", WarningLog);
+	}
 };
 
 }

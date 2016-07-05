@@ -3,6 +3,7 @@
 #include "Block.h"
 #include "Branch.h"
 #include "Call.h"
+#include "Class.h"
 #include "Declaration.h"
 #include "ExprInstr.h"
 #include "FunctionDeclaration.h"

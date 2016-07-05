@@ -29,7 +29,6 @@ class Parser : NonCopyable
 	public:
 		Parser();
 
-
 		ASTStatement *parse(const core::Array<Token> &tokens) const {
 			return parse(tokens.begin(), tokens.end());
 		}

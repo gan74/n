@@ -95,14 +95,16 @@ class Token
 			Def				= 25,
 			Return			= 26,
 
-			Error			= isEnd | 27,
-			End				= isEnd | 28
+			Class			= 27,
+
+			Error			= isEnd | 28,
+			End				= isEnd | 29
 		};
 
 		static core::String getName(Type type) {
 			static constexpr const char *names[] = {"'+'", "'-'", "'*'", "'/'", "'=='", "'!='", "'<'", "'>'", "", "",
 													"'='", "identifier", "integer", "float", "'('", "')'", "'{'", "'}'", "','","':'", "';'",
-													"'var'", "'if'", "'else'","'while'", "'def'", "'return'",
+													"'var'", "'if'", "'else'","'while'", "'def'", "'return'", "'class'",
 													"", "EOF"};
 			return names[type & ~flagMask];
 		}

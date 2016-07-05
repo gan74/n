@@ -21,6 +21,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace n {
 namespace script {
 
+class WTClass;
+
 class DataType : NonCopyable
 {
 	public:
@@ -54,8 +56,15 @@ class PrimitiveDataType : public DataType
 class ObjectDataType : public DataType
 {
 	public:
-		ObjectDataType(const core::String &name) : DataType(name, true) {
+		ObjectDataType(const core::String &name, WTClass *c) : DataType(name, true), cl(c) {
 		}
+
+		WTClass *getClass() const {
+			return cl;
+		}
+
+	private:
+		WTClass *cl;
 };
 
 class IntDataType : public PrimitiveDataType

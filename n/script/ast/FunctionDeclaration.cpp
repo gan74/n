@@ -24,30 +24,20 @@ namespace script {
 namespace ast {
 
 WTStatement *ast::FunctionDeclaration::toWorkTree(ClassBuilder &builder, Scope &) const {
-	WTFunction *function = builder.getMethods()[name];
+	WTFunction *function = builder.getFunctions()[name];
 
-	ClassBuilder b(&builder.getTypeSystem(), &builder.getMethods(), function);
+	ClassBuilder b(builder, function);
 
-	for(WTVariable *a : function->args) {
+	/*for(WTVariable *a : function->args) {
 		b.getScope().declare(a);
-	}
+	}*/
 	function->body = body->toWorkTree(b);
 	return 0;
 }
 
 void ast::FunctionDeclaration::lookupFunctions(ClassBuilder &builder) const {
-	if(builder.getMethods()[name]) {
+	if(builder.getFunctions()[name]) {
 		throw ValidationErrorException("\"" + name + "\" has already been declared in this scope", position);
-	}
-
-	ClassBuilder b(&builder.getTypeSystem(), &builder.getMethods());
-
-	core::Array<WTVariable *> arg;
-	for(ast::Declaration *d : args) {
-		if(d->value) {
-			throw ValidationErrorException("Function parameter \"" + d->name + "\" should not have a value", position);
-		}
-		arg.append(b.getScope().declare(d->name, builder.getTypeSystem()[d->typeName]));
 	}
 
 	DataType *ret = builder.getTypeSystem()[retTypeName];
@@ -55,8 +45,16 @@ void ast::FunctionDeclaration::lookupFunctions(ClassBuilder &builder) const {
 		throw ValidationErrorException("\"" + retTypeName + "\" was not declared in this scope", position);
 	}
 
-	builder.getMethods().declare(name, arg, ret);
+	WTFunction *function = builder.getFunctions().declare(name, ret);
+
+	for(Declaration *d : args) {
+		if(d->value) {
+			throw ValidationErrorException("Function parameter \"" + d->name + "\" should not have a value", position);
+		}
+		function->args << function->scope.declare(d->name, builder.getTypeSystem()[d->typeName]);
+	}
 }
+
 }
 }
 }

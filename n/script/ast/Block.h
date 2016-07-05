@@ -41,6 +41,7 @@ struct Block : public ASTStatement
 
 	virtual WTStatement *toWorkTree(ClassBuilder &builder, Scope &s) const override;
 	virtual void lookupFunctions(ClassBuilder &builder) const override;
+	virtual void lookupTypes(TypeSystem &ts) const override;
 };
 
 }

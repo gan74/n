@@ -13,38 +13,38 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **********************************/
+#ifndef N_SCRIPT_AST_CLASS_H
+#define N_SCRIPT_AST_CLASS_H
 
-#include "Block.h"
-#include <n/script/wt/wt.h>
+#include <n/script/ASTNode.h>
 
 namespace n {
 namespace script {
+
 namespace ast {
 
-WTStatement *ast::Block::toWorkTree(ClassBuilder &builder, Scope &s) const {
-	auto scope = s.nest();
-	core::Array<WTStatement *> in;
-	for(ASTStatement *i : instructions) {
-		WTStatement *ii = i->toWorkTree(builder, scope);
-		if(ii) {
-			in.append(ii);
-		}
+struct Class : public ASTStatement
+{
+	Class(const core::String &id, ASTStatement *bod, const TokenPosition &tk) : ASTStatement(tk), name(id), body(bod) {
 	}
-	return new wt::Block(in);
-}
 
-void ast::Block::lookupFunctions(ClassBuilder &builder) const {
-	for(ASTStatement *i : instructions) {
-		i->lookupFunctions(builder);
-	}
-}
+	const core::String name;
+	const ASTStatement *body;
 
-void ast::Block::lookupTypes(TypeSystem &ts) const {
-	for(ASTStatement *i : instructions) {
-		i->lookupTypes(ts);
+	virtual core::String toString() const override {
+		return "class " + name + body->toString();
 	}
+
+	virtual WTStatement *toWorkTree(ClassBuilder &builder, Scope &) const override;
+	virtual void lookupFunctions(ClassBuilder &builder) const;
+	virtual void lookupTypes(TypeSystem &ts) const override;
+
+	WTClass *getClass(ClassBuilder &builder) const;
+};
+
 }
 
 }
 }
-}
+
+#endif // N_SCRIPT_AST_CLASS_H

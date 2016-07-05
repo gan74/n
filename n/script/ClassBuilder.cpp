@@ -20,17 +20,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace n {
 namespace script {
 
-ClassBuilder::ClassBuilder(TypeSystem *t, FunctionTable *f, WTFunction *s) : current(s), typeSystem(t), methods(f) {
+ClassBuilder::ClassBuilder(TypeSystem *t, WTClass *c) : current(0), currentClass(c), typeSystem(t) {
+}
+
+ClassBuilder::ClassBuilder(const ClassBuilder &b, WTFunction *f) : current(f), currentClass(b.currentClass), typeSystem(b.typeSystem) {
+}
+
+ClassBuilder::ClassBuilder(const ClassBuilder &b, WTClass *c) : current(0), currentClass(c), typeSystem(b.typeSystem) {
 }
 
 ClassBuilder::~ClassBuilder() {
-	if(current) {
-		current->stackSize = scope.getStackSize();
-	}
 }
 
-FunctionTable &ClassBuilder::getMethods() {
-	return *methods;
+FunctionTable &ClassBuilder::getFunctions() {
+	return currentClass->methods;
 }
 
 TypeSystem &ClassBuilder::getTypeSystem() {
@@ -41,13 +44,17 @@ WTFunction *ClassBuilder::getCurrentFunction() const {
 	return current;
 }
 
-Scope &ClassBuilder::getScope() {
-	return scope;
+WTClass *ClassBuilder::getCurrentClass() const {
+	return currentClass;
 }
 
-WTExpression *ClassBuilder::cast(WTExpression *expr, DataType *type, uint reg) const {
+Scope &ClassBuilder::getScope() {
+	return current ? current->scope : currentClass->scope;
+}
+
+WTExpression *ClassBuilder::cast(WTExpression *expr, DataType *type, uint reg, const TokenPosition &pos) const {
 	if(!typeSystem->assign(type, expr->expressionType)) {
-		throw ValidationErrorException("Assignation of incompatible types", TokenPosition());
+		throw ValidationErrorException("Assignation of incompatible types", pos);
 	}
 	return expr->expressionType == type ? expr : new wt::Cast(expr, type, reg);
 }

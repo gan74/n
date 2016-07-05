@@ -34,10 +34,14 @@ class Scope : NonCopyable
 
 		WTVariable *declare(const core::String &name, DataType *type);
 		WTVariable *declare(WTVariable *var);
+
 		uint alloc();
+
 		uint getStackSize() const;
+		uint getVarCount() const;
 
 		WTVariable *operator[](const core::String &name) const;
+		const core::Map<core::String, WTVariable *> &getScopedVariables() const;
 
 		Scope nest();
 
