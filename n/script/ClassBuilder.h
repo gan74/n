@@ -42,6 +42,8 @@ class ClassBuilder
 		WTFunction *getCurrentFunction() const;
 		WTClass *getCurrentClass() const;
 
+		core::String getScopeName() const;
+
 	private:
 		WTFunction *current;
 		WTClass *currentClass;

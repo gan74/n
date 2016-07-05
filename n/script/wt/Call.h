@@ -27,10 +27,11 @@ namespace wt {
 
 struct Call : public WTExpression
 {
-	Call(WTFunction *f, const core::Array<WTExpression *> &arg, uint reg) : WTExpression(WTNode::Call, f->returnType, reg), func(f), args(arg) {
+	Call(WTFunction *f, WTExpression *o, const core::Array<WTExpression *> &arg, uint reg) : WTExpression(WTNode::Call, f->returnType, reg), func(f), object(o), args(arg) {
 	}
 
 	WTFunction *func;
+	WTExpression *object;
 	core::Array<WTExpression *> args;
 };
 

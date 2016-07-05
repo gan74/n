@@ -17,12 +17,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define N_SCRIPT_SCOPE_H
 
 #include <n/core/String.h>
-#include "TypeSystem.h"
+#include <n/core/Map.h>
 
 namespace n {
 namespace script {
 
 class WTVariable;
+class DataType;
 
 class Scope : NonCopyable
 {
@@ -38,10 +39,8 @@ class Scope : NonCopyable
 		uint alloc();
 
 		uint getStackSize() const;
-		uint getVarCount() const;
 
 		WTVariable *operator[](const core::String &name) const;
-		const core::Map<core::String, WTVariable *> &getScopedVariables() const;
 
 		Scope nest();
 

@@ -13,8 +13,8 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **********************************/
-#ifndef N_SCRIPT_AST_CLASS_H
-#define N_SCRIPT_AST_CLASS_H
+#ifndef N_SCRIPT_AST_CLASSDECLARATION_H
+#define N_SCRIPT_AST_CLASSDECLARATION_H
 
 #include <n/script/ASTNode.h>
 
@@ -23,9 +23,9 @@ namespace script {
 
 namespace ast {
 
-struct Class : public ASTStatement
+struct ClassDeclaration : public ASTStatement
 {
-	Class(const core::String &id, ASTStatement *bod, const TokenPosition &tk) : ASTStatement(tk), name(id), body(bod) {
+	ClassDeclaration(const core::String &id, ASTStatement *bod, const TokenPosition &tk) : ASTStatement(tk), name(id), body(bod) {
 	}
 
 	const core::String name;
@@ -47,4 +47,4 @@ struct Class : public ASTStatement
 }
 }
 
-#endif // N_SCRIPT_AST_CLASS_H
+#endif // N_SCRIPT_AST_CLASSDECLARATION_H

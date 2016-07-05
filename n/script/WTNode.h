@@ -105,16 +105,7 @@ struct WTFunction : NonCopyable
 	uint index;
 };
 
-struct WTClass : NonCopyable
-{
-	WTClass(const core::String &n) : name(n) {
-	}
-
-	core::String name;
-	FunctionTable methods;
-
-	Scope scope;
-};
+using WTClass = ObjectDataType;
 
 }
 }

@@ -55,14 +55,22 @@ static ASTExpression *parseExpr(core::Array<Token>::const_iterator &begin, core:
 static ASTExpression *parseSimpleExpr(core::Array<Token>::const_iterator &begin, core::Array<Token>::const_iterator end) {
 	core::Array<Token>::const_iterator id = begin;
 	switch((begin++)->type) {
-		case Token::Identifier:
+		case Token::Identifier: {
 			if(begin->type == Token::Assign) {
 				begin++;
 				return new ast::Assignation(id->string, parseExpr(begin, end), (id + 1)->position);
 			} else if(begin->type == Token::LeftPar) {
-				return new ast::Call(id->string, parseArgs(begin, end), id->position);
+				return new ast::Call(id->string, new ast::Identifier("this", id->position), parseArgs(begin, end), id->position);
 			}
-			return new ast::Identifier(id->string, id->position);
+			ASTExpression *expr = new ast::Identifier(id->string, id->position);
+			while(begin->type == Token::Dot) {
+				expect(++begin, {Token::Identifier});
+				id = begin;
+				expect(++begin, {Token::LeftPar});
+				expr = new ast::Call(id->string, expr, parseArgs(begin, end), id->position);
+			}
+			return expr;
+		} break;
 
 		case Token::Integer:
 			return new ast::Literal(*id);
@@ -188,7 +196,7 @@ static ASTStatement *parseInstruction(core::Array<Token>::const_iterator &begin,
 			Token id = *begin++;
 			eat(begin, {Token::Assign});
 			expect(begin, {Token::LeftBrace});
-			return new ast::Class(id.string, parseInstruction(begin, end), id.position);
+			return new ast::ClassDeclaration(id.string, parseInstruction(begin, end), id.position);
 		} break;
 
 		case Token::Return:

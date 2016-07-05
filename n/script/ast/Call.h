@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <n/script/ASTNode.h>
 #include <n/core/Array.h>
+#include "Identifier.h"
 
 namespace n {
 namespace script {
@@ -26,10 +27,11 @@ namespace ast {
 
 struct Call : public ASTExpression
 {
-	Call(const core::String &id, const core::Array<ASTExpression *> &args, const TokenPosition &tk) : ASTExpression(tk), name(id), args(args) {
+	Call(const core::String &id, ASTExpression *o, const core::Array<ASTExpression *> &args, const TokenPosition &tk) : ASTExpression(tk), name(id), object(o), args(args) {
 	}
 
 	const core::String name;
+	ASTExpression *object;
 	const core::Array<ASTExpression *> args;
 
 	virtual core::String toString() const override {
@@ -41,6 +43,8 @@ struct Call : public ASTExpression
 	}
 
 	virtual WTExpression *toWorkTree(ClassBuilder &builder, Scope &s, uint workReg) const override;
+
+	WTFunction *getFunction(ClassBuilder &builder, WTExpression *o) const;
 };
 
 }

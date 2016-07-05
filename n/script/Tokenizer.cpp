@@ -97,6 +97,7 @@ Token Tokenizer::next(const core::String &str, uint &beg) {
 	if(tk.beginsWith("=")) {
 		return Token(Token::Assign, "=", beg++);
 	}
+
 	if(tk.beginsWith("<")) {
 		return Token(Token::LessThan, "<", beg++);
 	}
@@ -135,6 +136,9 @@ Token Tokenizer::next(const core::String &str, uint &beg) {
 	}
 	if(tk.beginsWith(";")) {
 		return Token(Token::SemiColon, ";", beg++);
+	}
+	if(tk.beginsWith(".")) {
+		return Token(Token::Dot, ".", beg++);
 	}
 
 	return Token(Token::Error, tk, beg = end);

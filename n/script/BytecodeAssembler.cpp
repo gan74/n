@@ -153,8 +153,12 @@ BytecodeAssembler &BytecodeAssembler::jumpZ(RegisterType a, Label to) {
 	return ass(BCI(Bytecode::JumpZ, a, to.index - 1));
 }
 
-BytecodeAssembler &BytecodeAssembler::call(RegisterType to, UnsignedDataType index) {
+/*BytecodeAssembler &BytecodeAssembler::call(RegisterType to, UnsignedDataType index) {
 	return ass(BCI(Bytecode::Call, to, index));
+}*/
+
+BytecodeAssembler &BytecodeAssembler::call(RegisterType to, RegisterType obj, RegisterType index) {
+	return ass(BCI(Bytecode::Call, to, obj, index));
 }
 
 BytecodeAssembler &BytecodeAssembler::pushArg(RegisterType arg) {

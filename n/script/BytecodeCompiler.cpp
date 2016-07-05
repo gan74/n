@@ -134,7 +134,7 @@ void BytecodeCompiler::compile(Context &context, WTFunction *func) {
 	BytecodeAssembler *ass = context.assembler;
 	context.assembler = &context.externalAssemblers[func];
 
-	context.assembler->function(func->index, func->scope.getStackSize(), func->scope.getVarCount());
+	context.assembler->function(func->index, func->scope.getStackSize(), func->args.size());
 	compile(context, func->body);
 	context.assembler->exit();
 
@@ -171,7 +171,8 @@ void BytecodeCompiler::compile(Context &context, WTExpression *node) {
 				compile(context, e);
 				context.assembler->pushArg(e->registerIndex);
 			}
-			context.assembler->call(as<wt::Call>(node)->registerIndex, as<wt::Call>(node)->func->index);
+			compile(context, as<wt::Call>(node)->object);
+			context.assembler->call(as<wt::Call>(node)->registerIndex, as<wt::Call>(node)->object->registerIndex, as<wt::Call>(node)->func->index);
 		return;
 
 

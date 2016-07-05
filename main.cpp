@@ -46,14 +46,19 @@ void run(ASTStatement *node, ClassBuilder &builder) {
 
 
 int main(int, char **) {
-	core::String code = //"class App = {"
-						"def fib(a:Int):Int = {"
-						"if(a < 1) return 1;"
-						"return fib(a - 1) + fib(a - 2);"
+	core::String code = "class App = "
+						"{"
+							"def fib2():Int = {"
+								"return fib(32);"
+							"}"
+							"def fib(a:Int):Int = {"
+								"if(a < 1) return 1;"
+								"return fib(a - 1) + fib(a - 2);"
+							"}"
 						"}"
-						//"}"
-						"var a:Int = 32;"
-						"a = fib(a);"
+						"var x:Int = 32;"
+						"var app:App;"
+						"x = app.fib(x);"
 						;
 
 
@@ -63,7 +68,7 @@ int main(int, char **) {
 	Parser parser;
 
 	TypeSystem types;
-	WTClass global("#");
+	WTClass global("the global scope");
 
 	try {
 		ASTStatement *node = parser.parse(tks);
@@ -167,7 +172,7 @@ void print(uint index, BytecodeInstruction i) {
 		break;
 
 		case Bytecode::Call:
-			std::cout << "call $" << i.dst << " " << i.udata + 1;
+			std::cout << "call $" << i.dst << " $" << i.src[0] << " " << i.src[1] + 1;
 		break;
 
 		case Bytecode::PushArg:

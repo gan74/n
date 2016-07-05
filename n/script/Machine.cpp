@@ -147,11 +147,12 @@ void Machine::run(const BytecodeInstruction *bcode, Primitive *mem, Primitive *r
 			case Bytecode::FuncHead2:
 				stackTop = mem + i->dst;
 				argStackTop -= i->src[0];
-				memcpy(mem, argStackTop, sizeof(Primitive) * i->src[0]);
+				memcpy(mem + 1, argStackTop, sizeof(Primitive) * i->src[0]); // for 'this'
 			break;
 
 			case Bytecode::Call:
-				run(funcTable[i->udata], stackTop, m);
+				*stackTop = mem[i->src[0]];
+				run(funcTable[i->src[1]], stackTop, m);
 			break;
 
 			case Bytecode::PushArg:

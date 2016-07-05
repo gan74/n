@@ -74,38 +74,44 @@ class Token
 
 			Assign			= 10,
 
-			Identifier		= 11,
-			Integer			= 12,
-			Float			= 13,
+			Identifier		= 20,
+			Integer			= 21,
+			Float			= 22,
 
-			LeftPar			= 14,
-			RightPar		= 15,
+			LeftPar			= 30,
+			RightPar		= 31,
+			LeftBrace		= 32,
+			RightBrace		= 33,
 
-			LeftBrace		= 16,
-			RightBrace		= 17,
+			Coma			= 40,
+			Colon			= 41,
+			SemiColon		= 42,
+			Dot				= 43,
 
-			Coma			= 18,
-			Colon			= 19,
-			SemiColon		= 20,
+			Var				= 50,
+			If				= 51,
+			Else			= 52,
+			While			= 53,
+			Def				= 54,
+			Return			= 55,
+			Class			= 56,
 
-			Var				= 21,
-			If				= 22,
-			Else			= 23,
-			While			= 24,
-			Def				= 25,
-			Return			= 26,
-
-			Class			= 27,
-
-			Error			= isEnd | 28,
-			End				= isEnd | 29
+			Error			= isEnd | 100,
+			End				= isEnd | 101
 		};
 
 		static core::String getName(Type type) {
-			static constexpr const char *names[] = {"'+'", "'-'", "'*'", "'/'", "'=='", "'!='", "'<'", "'>'", "", "",
-													"'='", "identifier", "integer", "float", "'('", "')'", "'{'", "'}'", "','","':'", "';'",
-													"'var'", "'if'", "'else'","'while'", "'def'", "'return'", "'class'",
-													"", "EOF"};
+			static constexpr const char *names[] = {"'+'", "'-'", "'*'", "'/'", "'=='", "'!='", "'<'", "'>'", "", "",					// 0x
+													"'='", "", "", "", "", "", "", "", "", "",											// 1x
+													"identifier", "integer", "float", "", "", "", "", "", "", "",						// 2x
+													"'('", "')'", "'{'", "'}'", "", "", "", "", "", "",									// 3x
+													"','", "':'", "';'", "'.'", "", "", "", "", "", "",									// 4x
+													"'var'", "'if'", "'else'","'while'", "'def'", "'return'", "'class'", "", "", "",	// 5x
+													"", "", "", "", "", "", "", "", "", "",												// 6x
+													"", "", "", "", "", "", "", "", "", "",												// 7x
+													"", "", "", "", "", "", "", "", "", "",												// 8x
+													"", "", "", "", "", "", "", "", "", "",												// 9x
+													"", "EOF"};																			// 10x
 			return names[type & ~flagMask];
 		}
 

@@ -17,11 +17,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define N_SCRIPT_DATATYPE_H
 
 #include <n/core/String.h>
+#include "Scope.h"
+#include "FunctionTable.h"
 
 namespace n {
 namespace script {
-
-class WTClass;
 
 class DataType : NonCopyable
 {
@@ -56,15 +56,13 @@ class PrimitiveDataType : public DataType
 class ObjectDataType : public DataType
 {
 	public:
-		ObjectDataType(const core::String &name, WTClass *c) : DataType(name, true), cl(c) {
+		ObjectDataType(const core::String &name) : DataType(name, true) {
 		}
 
-		WTClass *getClass() const {
-			return cl;
-		}
 
-	private:
-		WTClass *cl;
+	//private:
+		FunctionTable methods;
+		Scope scope;
 };
 
 class IntDataType : public PrimitiveDataType

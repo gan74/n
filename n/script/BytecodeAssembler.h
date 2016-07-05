@@ -79,7 +79,9 @@ class BytecodeAssembler
 		BytecodeAssembler &jumpNZ(RegisterType a, Label to);
 		BytecodeAssembler &jumpZ(RegisterType a, Label to);
 
-		BytecodeAssembler &call(RegisterType to, UnsignedDataType index);
+		//BytecodeAssembler &call(RegisterType to, UnsignedDataType index);
+		BytecodeAssembler &call(RegisterType to, RegisterType obj, RegisterType index);
+
 		BytecodeAssembler &pushArg(RegisterType arg);
 		BytecodeAssembler &ret(RegisterType from);
 		BytecodeAssembler &retI(int64 value);

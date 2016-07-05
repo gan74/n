@@ -47,6 +47,10 @@ void ast::FunctionDeclaration::lookupFunctions(ClassBuilder &builder) const {
 
 	WTFunction *function = builder.getFunctions().declare(name, ret);
 
+	if(builder.getCurrentClass()) {
+		function->scope.declare("this", builder.getCurrentClass());
+	}
+
 	for(Declaration *d : args) {
 		if(d->value) {
 			throw ValidationErrorException("Function parameter \"" + d->name + "\" should not have a value", position);

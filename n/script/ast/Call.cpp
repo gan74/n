@@ -18,15 +18,29 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <n/script/exceptions.h>
 #include <n/script/ClassBuilder.h>
 #include <n/script/wt/wt.h>
+#include "Identifier.h"
 
 namespace n {
 namespace script {
 namespace ast {
 
-WTExpression *ast::Call::toWorkTree(ClassBuilder &builder, Scope &s, uint workReg) const {
-	WTFunction *function = builder.getFunctions()[name];
+WTFunction *Call::getFunction(ClassBuilder &builder, WTExpression *o) const {
+	if(o) {
+		DataType *t = o->expressionType;
+		if(!t->isObject()) {
+			throw ValidationErrorException("\"" + t->getName() + "\" is not an object.", position);
+		}
+		return static_cast<WTClass *>(t)->methods[name];
+	}
+	return builder.getFunctions()[name];
+}
+
+WTExpression *Call::toWorkTree(ClassBuilder &builder, Scope &s, uint workReg) const {
+	WTExpression *obj = object->toWorkTree(builder, s, workReg);
+	WTFunction *function = getFunction(builder, obj);
+
 	if(!function) {
-		throw ValidationErrorException("\"" + name + "\" was not declared in this scope", position);
+		throw ValidationErrorException("\"" + name + "\" was not declared in " + builder.getScopeName(), position);
 	}
 	if(function->args.size() != args.size()) {
 		throw ValidationErrorException("Wrong number of argument (expected " + core::String(function->args.size()) + " got " + core::String(args.size()) + ")", position);
@@ -40,7 +54,7 @@ WTExpression *ast::Call::toWorkTree(ClassBuilder &builder, Scope &s, uint workRe
 		arg << ex;
 	}
 
-	return new wt::Call(function, arg, workReg);
+	return new wt::Call(function, obj, arg, workReg);
 }
 
 }

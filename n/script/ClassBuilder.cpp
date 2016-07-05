@@ -59,6 +59,9 @@ WTExpression *ClassBuilder::cast(WTExpression *expr, DataType *type, uint reg, c
 	return expr->expressionType == type ? expr : new wt::Cast(expr, type, reg);
 }
 
+core::String ClassBuilder::getScopeName() const {
+	return currentClass ? "\"" + currentClass->getName() + "\"" : "this scope";
+}
 
 }
 }
