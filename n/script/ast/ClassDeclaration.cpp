@@ -36,19 +36,16 @@ void ClassDeclaration::lookupTypes(TypeSystem &ts) const {
 		throw ValidationErrorException("\"" + name + "\" has already been declared in this scope", position);
 	}
 
-	ts.addType(new ObjectDataType(name));
+	ts.addType(name);
 	body->lookupTypes(ts);
 }
 
-WTClass *ClassDeclaration::getClass(ClassBuilder &builder) const {
+DataType *ClassDeclaration::getClass(ClassBuilder &builder) const {
 	DataType *type = builder.getTypeSystem()[name];
 	if(!type) {
 		throw ValidationErrorException("\"" + name + "\" was not declared in this scope", position);
 	}
-	if(!type->isObject()) {
-		throw ValidationErrorException("\"" + name + "\" is not an object.", position);
-	}
-	return static_cast<WTClass *>(type);
+	return type;
 }
 
 }

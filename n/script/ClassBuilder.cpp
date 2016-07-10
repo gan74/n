@@ -20,13 +20,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace n {
 namespace script {
 
-ClassBuilder::ClassBuilder(TypeSystem *t, WTClass *c) : current(0), currentClass(c), typeSystem(t) {
+ClassBuilder::ClassBuilder(TypeSystem *t, DataType *c) : current(0), currentClass(c), typeSystem(t) {
 }
 
 ClassBuilder::ClassBuilder(const ClassBuilder &b, WTFunction *f) : current(f), currentClass(b.currentClass), typeSystem(b.typeSystem) {
 }
 
-ClassBuilder::ClassBuilder(const ClassBuilder &b, WTClass *c) : current(0), currentClass(c), typeSystem(b.typeSystem) {
+ClassBuilder::ClassBuilder(const ClassBuilder &b, DataType *c) : current(0), currentClass(c), typeSystem(b.typeSystem) {
 }
 
 ClassBuilder::~ClassBuilder() {
@@ -44,7 +44,7 @@ WTFunction *ClassBuilder::getCurrentFunction() const {
 	return current;
 }
 
-WTClass *ClassBuilder::getCurrentClass() const {
+DataType *ClassBuilder::getCurrentClass() const {
 	return currentClass;
 }
 

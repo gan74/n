@@ -81,19 +81,20 @@ class BytecodeAssembler
 		BytecodeAssembler &jumpNZ(RegisterType a, Label to);
 		BytecodeAssembler &jumpZ(RegisterType a, Label to);
 
-		//BytecodeAssembler &call(RegisterType to, UnsignedDataType index);
-		BytecodeAssembler &call(RegisterType to, RegisterType obj, RegisterType index);
+		BytecodeAssembler &callStatic(RegisterType to, RegisterType classId, RegisterType index);
+		BytecodeAssembler &callVirtual(RegisterType to, RegisterType obj, RegisterType index);
 
 		BytecodeAssembler &pushArg(RegisterType arg);
 		BytecodeAssembler &ret(RegisterType from);
 		BytecodeAssembler &retI(int64 value);
 
 
-		BytecodeAssembler &function(RegisterType index, RegisterType stack, RegisterType args);
-		BytecodeAssembler &classDecl();
+		BytecodeAssembler &function(RegisterType classId, RegisterType index, RegisterType stack, RegisterType args);
+		//BytecodeAssembler &classDecl();
 
 
 		BytecodeAssembler &exit();
+		BytecodeAssembler &endFunc();
 
 
 		void seek(Label to);

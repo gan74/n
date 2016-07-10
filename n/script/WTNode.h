@@ -106,8 +106,6 @@ struct WTFunction : NonCopyable
 	uint index;
 };
 
-using WTClass = ObjectDataType;
-
 }
 }
 

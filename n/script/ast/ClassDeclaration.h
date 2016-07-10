@@ -39,7 +39,7 @@ struct ClassDeclaration : public ASTStatement
 	virtual void lookupFunctions(ClassBuilder &builder) const;
 	virtual void lookupTypes(TypeSystem &ts) const override;
 
-	WTClass *getClass(ClassBuilder &builder) const;
+	DataType *getClass(ClassBuilder &builder) const;
 };
 
 }

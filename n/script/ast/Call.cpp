@@ -26,11 +26,7 @@ namespace ast {
 
 WTFunction *Call::getFunction(ClassBuilder &builder, WTExpression *o) const {
 	if(o) {
-		DataType *t = o->expressionType;
-		if(!t->isObject()) {
-			throw ValidationErrorException("\"" + t->getName() + "\" is not an object.", position);
-		}
-		return static_cast<WTClass *>(t)->getMethods()[name];
+		return o->expressionType->getMethods()[name];
 	}
 	return builder.getFunctions()[name];
 }

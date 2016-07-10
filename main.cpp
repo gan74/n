@@ -58,7 +58,7 @@ int main(int, char **) {
 						"}"
 						"var x:Int = 32;"
 						"var app:App;"
-						"x = app.fib(x);"
+						"x = app.fib2();"
 						;
 
 
@@ -68,7 +68,7 @@ int main(int, char **) {
 	Parser parser;
 
 	TypeSystem types;
-	WTClass global("the global scope");
+	DataType *global = types.addType("the global scope");
 
 	try {
 		ASTStatement *node = parser.parse(tks);
@@ -76,7 +76,7 @@ int main(int, char **) {
 
 		node->lookupTypes(types);
 
-		ClassBuilder builder(&types, &global);
+		ClassBuilder builder(&types, global);
 		node->lookupFunctions(builder);
 		WTStatement *wt = node->toWorkTree(builder);
 
@@ -147,6 +147,10 @@ void print(uint index, BytecodeInstruction i) {
 			std::cout << "setf $" << i.dst << " " << i.data;
 		break;
 
+		case Bytecode::New:
+			std::cout << "new $" << i.dst;
+		break;
+
 		case Bytecode::ToFloat:
 			std::cout << "float $" << i.dst << " $" << i.src[0];
 		break;
@@ -171,8 +175,12 @@ void print(uint index, BytecodeInstruction i) {
 			std::cout << "jmpnz $" << i.dst << " " << i.udata + 1;
 		break;
 
-		case Bytecode::Invoke:
-			std::cout << "call $" << i.dst << " $" << i.src[0] << " " << i.src[1] + 1;
+		case Bytecode::InvokeVirtual:
+			std::cout << "ivkvirtual $" << i.dst << " $" << i.src[0] << " " << i.src[1] + 1;
+		break;
+
+		case Bytecode::InvokeStatic:
+			std::cout << "ivkstatic $" << i.dst << " " << i.src[0] << " " << i.src[1] + 1;
 		break;
 
 		case Bytecode::PushArg:
@@ -180,15 +188,11 @@ void print(uint index, BytecodeInstruction i) {
 		break;
 
 		case Bytecode::FuncHead1:
-			std::cout << "function1 " << i.dst;
+			std::cout << "function1 " << i.dst << " " << i.src[0];
 		break;
 
 		case Bytecode::FuncHead2:
 			std::cout << "function2 " << i.dst << " " << i.src[0];
-		break;
-
-		case Bytecode::ClassHead:
-			std::cout << "class ";
 		break;
 
 		case Bytecode::Ret:

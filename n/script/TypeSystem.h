@@ -35,7 +35,7 @@ class TypeSystem : NonCopyable
 		DataType *getIntType() const;
 		DataType *getFloatType() const;
 
-		void addType(DataType *type);
+		DataType *addType(const core::String &name);
 		const core::Map<core::String, DataType *> &getAll() const;
 
 		bool assign(DataType *lhs, DataType *rhs);
@@ -50,6 +50,9 @@ class TypeSystem : NonCopyable
 	private:
 		DataType *primitiveOpCoerce(DataType *lhs, DataType *rhs);
 		DataType *binOp(DataType *lhs, DataType *rhs);
+
+
+		DataType *addType(DataType *ty);
 
 		core::Map<core::String, DataType *> types;
 };

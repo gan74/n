@@ -60,12 +60,13 @@ enum Bytecode : uint16
 	JumpZ,
 	JumpNZ,
 
-	FuncHead1, //  func id
+	FuncHead1, // func id, class id
 	FuncHead2, // arg num, stack size
 
-	ClassHead,
+	//ClassHead,
 
-	Invoke,
+	InvokeStatic,
+	InvokeVirtual,
 
 	PushArg,
 	Ret,

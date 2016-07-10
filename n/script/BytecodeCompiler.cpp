@@ -16,8 +16,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "BytecodeCompiler.h"
 #include "exceptions.h"
 
-#include <iostream>
-
 namespace n {
 namespace script {
 
@@ -60,7 +58,7 @@ void BytecodeCompiler::compile(Context &context, DataType *type) {
 		return;
 	}
 
-	context.assembler->classDecl();
+	//context.assembler->classDecl();
 	for(const auto &p : type->getMethods().getAll()) {
 		compile(context, p._2);
 	}
@@ -156,9 +154,9 @@ void BytecodeCompiler::compile(Context &context, WTFunction *func) {
 	BytecodeAssembler *ass = context.assembler;
 	context.assembler = &context.externalAssemblers[func];
 
-	context.assembler->function(func->index, func->scope.getStackSize(), func->args.size());
+	context.assembler->function(0, func->index, func->scope.getStackSize(), func->args.size());
 	compile(context, func->body);
-	context.assembler->exit();
+	context.assembler->endFunc();
 
 	context.assembler = ass;
 }
@@ -185,15 +183,25 @@ void BytecodeCompiler::compile(Context &context, WTExpression *node) {
 			}
 		return;
 
-		case WTNode::Call:
-			//compile(context, as<wt::Call>(node)->func);
-			for(WTExpression *e : as<wt::Call>(node)->args) {
+		case WTNode::Call: {
+			wt::Call *c = as<wt::Call>(node);
+			WTExpression *o = c->object;
+
+			if(!o->expressionType->isObject()) {
+				context.assembler->pushArg(c->object->registerIndex);
+			}
+			for(WTExpression *e : c->args) {
 				compile(context, e);
 				context.assembler->pushArg(e->registerIndex);
 			}
-			compile(context, as<wt::Call>(node)->object);
-			context.assembler->call(as<wt::Call>(node)->registerIndex, as<wt::Call>(node)->object->registerIndex, as<wt::Call>(node)->func->index);
-		return;
+			compile(context, o);
+
+			if(o->expressionType->isObject()) {
+				context.assembler->callVirtual(c->registerIndex, o->registerIndex, c->func->index);
+			} else {
+				context.assembler->callStatic(c->registerIndex, o->expressionType->getIndex(), c->func->index);
+			}
+		} return;
 
 
 		case WTNode::Integer:

@@ -27,11 +27,11 @@ namespace script {
 class ClassBuilder
 {
 	public:
-		ClassBuilder(TypeSystem *t, WTClass *c);
+		ClassBuilder(TypeSystem *t, DataType *c);
 		~ClassBuilder();
 
 		ClassBuilder(const ClassBuilder &b, WTFunction *f);
-		ClassBuilder(const ClassBuilder &b, WTClass *c);
+		ClassBuilder(const ClassBuilder &b, DataType *c);
 
 		FunctionTable &getFunctions();
 		TypeSystem &getTypeSystem();
@@ -40,13 +40,13 @@ class ClassBuilder
 		WTExpression *cast(WTExpression *expr, DataType *type, uint reg, const TokenPosition &pos = TokenPosition()) const;
 
 		WTFunction *getCurrentFunction() const;
-		WTClass *getCurrentClass() const;
+		DataType *getCurrentClass() const;
 
 		core::String getScopeName() const;
 
 	private:
 		WTFunction *current;
-		WTClass *currentClass;
+		DataType *currentClass;
 
 		TypeSystem *typeSystem;
 };

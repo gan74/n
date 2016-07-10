@@ -158,12 +158,12 @@ BytecodeAssembler &BytecodeAssembler::jumpZ(RegisterType a, Label to) {
 	return ass(BCI(Bytecode::JumpZ, a, to.index - 1));
 }
 
-/*BytecodeAssembler &BytecodeAssembler::call(RegisterType to, UnsignedDataType index) {
-	return ass(BCI(Bytecode::Call, to, index));
-}*/
+BytecodeAssembler &BytecodeAssembler::callStatic(RegisterType to, RegisterType classId, RegisterType index) {
+	return ass(BCI(Bytecode::InvokeStatic, to, classId, index));
+}
 
-BytecodeAssembler &BytecodeAssembler::call(RegisterType to, RegisterType obj, RegisterType index) {
-	return ass(BCI(Bytecode::Invoke, to, obj, index));
+BytecodeAssembler &BytecodeAssembler::callVirtual(RegisterType to, RegisterType obj, RegisterType index) {
+	return ass(BCI(Bytecode::InvokeVirtual, to, obj, index));
 }
 
 BytecodeAssembler &BytecodeAssembler::pushArg(RegisterType arg) {
@@ -183,20 +183,29 @@ BytecodeAssembler &BytecodeAssembler::retI(int64 value) {
 	return ass(BCI(Bytecode::RetI, 0, val));
 }
 
-
-BytecodeAssembler &BytecodeAssembler::function(RegisterType index, RegisterType stack, RegisterType args) {
-	ass(BCI(Bytecode::FuncHead1, index));
+BytecodeAssembler &BytecodeAssembler::function(RegisterType classId, RegisterType index, RegisterType stack, RegisterType args) {
+	ass(BCI(Bytecode::FuncHead1, index, classId));
 	return ass(BCI(Bytecode::FuncHead2, stack, args));
 }
 
-BytecodeAssembler &BytecodeAssembler::classDecl() {
+/*BytecodeAssembler &BytecodeAssembler::classDecl() {
 	return ass(BCI(Bytecode::ClassHead));
-}
-
+}*/
 
 BytecodeAssembler &BytecodeAssembler::exit() {
 	return ass(BCI(Bytecode::Exit));
 }
+
+BytecodeAssembler &BytecodeAssembler::endFunc() {
+	if(index - 1 < in.size()) {
+		Bytecode op = in[index - 1].op;
+		if(op == Bytecode::Exit || op == Bytecode::Ret || op == Bytecode::RetI) {
+			return *this;
+		}
+	}
+	return ass(BCI(Bytecode::Exit));
+}
+
 
 }
 }

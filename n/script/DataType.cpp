@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace n {
 namespace script {
 
-DataType::DataType(const core::String &typeName, bool obj) : name(typeName), object(obj) {
+DataType::DataType(const core::String &typeName, bool obj, uint i) : name(typeName), object(obj), index(i) {
 }
 
 const core::String &DataType::getName() const {
@@ -44,6 +44,11 @@ const Scope &DataType::getScope() const {
 Scope &DataType::getScope() {
 	return scope;
 }
+
+uint DataType::getIndex() const {
+	return index;
+}
+
 
 }
 }

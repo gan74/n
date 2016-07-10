@@ -154,16 +154,16 @@ void Machine::run(const BytecodeInstruction *bcode, Primitive *mem, Primitive *r
 				memcpy(mem + 1, argStackTop, sizeof(Primitive) * i->src[0]); // for 'this'
 			break;
 
-			case Bytecode::ClassHead:
-				fatal("ClassHead in bytecode");
-			break;
-
-			case Bytecode::Invoke:
+			case Bytecode::InvokeVirtual:
 				tmp = *stackTop = mem[i->src[0]];
 				if(!tmp.object) {
 					fatal("nullptr");
 				}
 				run(tmp.object->vptr[i->src[1]], stackTop, m);
+			break;
+
+			case Bytecode::InvokeStatic:
+				run(classes[i->src[0]].vtable[i->src[1]], stackTop, m);
 			break;
 
 			case Bytecode::PushArg:
@@ -190,16 +190,21 @@ void Machine::load(const BytecodeInstruction *bcode, const BytecodeInstruction *
 	for(const BytecodeInstruction *i = bcode; i != end; i++) {
 		switch(i->op) {
 
-			case Bytecode::ClassHead:
-				classes << RuntimeClassInfo();
-			break;
+			case Bytecode::FuncHead1: {
+				uint funcId = i->dst;
+				uint classId = i->src[0];
 
-			case Bytecode::FuncHead1:
-				while(classes.last().vtable.size() <= i->dst) {
-					classes.last().vtable << nullptr;
+				while(classes.size() <= classId) {
+					classes << RuntimeClassInfo();
 				}
-				classes.last().vtable[i->dst] = i;
-			break;
+				RuntimeClassInfo &cl = classes[classId];
+
+				while(cl.vtable.size() <= funcId) {
+					cl.vtable << nullptr;
+				}
+				cl.vtable[funcId] = i;
+
+			} break;
 
 			default:
 			break;
