@@ -47,6 +47,7 @@ struct WTNode : NonCopyable
 		Return,
 
 		Integer,
+		New,
 
 		Cast,
 

@@ -29,6 +29,12 @@ class DataType : NonCopyable
 		const core::String &getName() const;
 		bool isObject() const;
 
+		const FunctionTable &getMethods() const;
+		FunctionTable &getMethods();
+
+		const Scope &getScope() const;
+		Scope &getScope();
+
 	private:
 		friend class PrimitiveDataType;
 		friend class ObjectDataType;
@@ -37,6 +43,9 @@ class DataType : NonCopyable
 
 		const core::String name;
 		const bool object;
+
+		FunctionTable methods;
+		Scope scope;
 };
 
 class PrimitiveDataType : public DataType
@@ -61,8 +70,8 @@ class ObjectDataType : public DataType
 
 
 	//private:
-		FunctionTable methods;
-		Scope scope;
+		/*FunctionTable methods;
+		Scope scope;*/
 };
 
 class IntDataType : public PrimitiveDataType

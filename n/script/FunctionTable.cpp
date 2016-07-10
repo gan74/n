@@ -41,5 +41,9 @@ WTFunction *FunctionTable::operator[](const core::String &name) const {
 	return it == functions.end() ? 0 : it->_2;
 }
 
+const FunctionTable::FMap &FunctionTable::getAll() const {
+	return functions;
+}
+
 }
 }

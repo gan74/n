@@ -171,7 +171,7 @@ void print(uint index, BytecodeInstruction i) {
 			std::cout << "jmpnz $" << i.dst << " " << i.udata + 1;
 		break;
 
-		case Bytecode::Call:
+		case Bytecode::Invoke:
 			std::cout << "call $" << i.dst << " $" << i.src[0] << " " << i.src[1] + 1;
 		break;
 
@@ -180,11 +180,15 @@ void print(uint index, BytecodeInstruction i) {
 		break;
 
 		case Bytecode::FuncHead1:
-			std::cout << "function1";
+			std::cout << "function1 " << i.dst;
 		break;
 
 		case Bytecode::FuncHead2:
 			std::cout << "function2 " << i.dst << " " << i.src[0];
+		break;
+
+		case Bytecode::ClassHead:
+			std::cout << "class ";
 		break;
 
 		case Bytecode::Ret:

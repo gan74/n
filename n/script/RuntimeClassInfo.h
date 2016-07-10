@@ -13,37 +13,24 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **********************************/
-#include "DataType.h"
+#ifndef N_SCRIPT_RUNTIMECLASSINFO_H
+#define N_SCRIPT_RUNTIMECLASSINFO_H
+
+#include "Bytecode.h"
+#include <n/core/Array.h>
 
 namespace n {
 namespace script {
 
-DataType::DataType(const core::String &typeName, bool obj) : name(typeName), object(obj) {
-}
+class RuntimeClassInfo
+{
+	public:
+		RuntimeClassInfo();
 
-const core::String &DataType::getName() const {
-	return name;
-}
-
-bool DataType::isObject() const {
-	return object;
-}
-
-const FunctionTable &DataType::getMethods() const {
-	return methods;
-}
-
-FunctionTable &DataType::getMethods() {
-	return methods;
-}
-
-const Scope &DataType::getScope() const {
-	return scope;
-}
-
-Scope &DataType::getScope() {
-	return scope;
-}
+		core::Array<const BytecodeInstruction *> vtable;
+};
 
 }
 }
+
+#endif // N_SCRIPT_RUNTIMECLASSINFO_H

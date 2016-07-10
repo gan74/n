@@ -17,6 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define N_SCRIPT_BYTECODE_H
 
 #include <n/types.h>
+#include "RuntimeObject.h"
 
 namespace n {
 namespace script {
@@ -51,6 +52,8 @@ enum Bytecode : uint16
 	SetI,
 	SetF,
 
+	New,
+
 	ToFloat,
 
 	Jump,
@@ -60,7 +63,10 @@ enum Bytecode : uint16
 	FuncHead1, //  func id
 	FuncHead2, // arg num, stack size
 
-	Call,
+	ClassHead,
+
+	Invoke,
+
 	PushArg,
 	Ret,
 	RetI,
@@ -110,7 +116,7 @@ union Primitive
 {
 	int64 integer;
 	double real;
-	void *object;
+	RuntimeObject *object;
 };
 
 static_assert(sizeof(BytecodeInstruction) == 8, "BytecodeInstruction should be 64 bits");

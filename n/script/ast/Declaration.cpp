@@ -35,7 +35,11 @@ WTStatement *ast::Declaration::toWorkTree(ClassBuilder &builder, Scope &s) const
 	if(value) {
 		val = builder.cast(value->toWorkTree(builder, scope, var->registerIndex), var->expressionType, var->registerIndex);
 	} else {
-		val = new wt::Int(0, builder.getTypeSystem().getIntType(), var->registerIndex);
+		if(var->expressionType->isObject()) {
+			val = new wt::New(var->expressionType, var->registerIndex);
+		} else {
+			val = new wt::Int(0, builder.getTypeSystem().getIntType(), var->registerIndex);
+		}
 	}
 	return new wt::ExprInstr(new wt::Assignation(var, val));
 }

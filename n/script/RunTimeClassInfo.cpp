@@ -13,36 +13,12 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **********************************/
-#include "DataType.h"
+#include "RuntimeClassInfo.h"
 
 namespace n {
 namespace script {
 
-DataType::DataType(const core::String &typeName, bool obj) : name(typeName), object(obj) {
-}
-
-const core::String &DataType::getName() const {
-	return name;
-}
-
-bool DataType::isObject() const {
-	return object;
-}
-
-const FunctionTable &DataType::getMethods() const {
-	return methods;
-}
-
-FunctionTable &DataType::getMethods() {
-	return methods;
-}
-
-const Scope &DataType::getScope() const {
-	return scope;
-}
-
-Scope &DataType::getScope() {
-	return scope;
+RuntimeClassInfo::RuntimeClassInfo() {
 }
 
 }

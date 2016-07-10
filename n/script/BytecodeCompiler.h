@@ -41,10 +41,11 @@ class BytecodeCompiler : NonCopyable
 		BytecodeAssembler compile(WTStatement *node, TypeSystem *ts);
 
 	private:
+		void compile(Context &context, DataType *type);
+
 		void compile(Context &context, WTStatement *node);
 		void compile(Context &context, WTExpression *node);
 		void compile(Context &context, WTFunction *func);
-
 		void compile(Context &context, wt::BinOp *node);
 };
 

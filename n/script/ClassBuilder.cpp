@@ -33,7 +33,7 @@ ClassBuilder::~ClassBuilder() {
 }
 
 FunctionTable &ClassBuilder::getFunctions() {
-	return currentClass->methods;
+	return currentClass->getMethods();
 }
 
 TypeSystem &ClassBuilder::getTypeSystem() {
@@ -49,7 +49,7 @@ WTClass *ClassBuilder::getCurrentClass() const {
 }
 
 Scope &ClassBuilder::getScope() {
-	return current ? current->scope : currentClass->scope;
+	return current ? current->scope : currentClass->getScope();
 }
 
 WTExpression *ClassBuilder::cast(WTExpression *expr, DataType *type, uint reg, const TokenPosition &pos) const {

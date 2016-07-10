@@ -16,8 +16,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef N_SCRIPT_MACHINE_H
 #define N_SCRIPT_MACHINE_H
 
-#include "Bytecode.h"
-#include <n/core/Array.h>
+#include "RuntimeClassInfo.h"
 
 namespace n {
 namespace script {
@@ -35,10 +34,9 @@ class Machine : NonCopyable
 	private:
 		void run(const BytecodeInstruction *bcode, Primitive *mem, Primitive *ret);
 
-
-		core::Array<const BytecodeInstruction *> funcTable;
-
 		Primitive *argStackTop;
+
+		core::Array<RuntimeClassInfo> classes;
 
 
 };

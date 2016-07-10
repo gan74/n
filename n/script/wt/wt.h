@@ -7,4 +7,5 @@
 #include "Expr.h"
 #include "Int.h"
 #include "Loop.h"
+#include "New.h"
 #include "Return.h"

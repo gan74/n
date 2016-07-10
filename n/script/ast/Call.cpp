@@ -30,7 +30,7 @@ WTFunction *Call::getFunction(ClassBuilder &builder, WTExpression *o) const {
 		if(!t->isObject()) {
 			throw ValidationErrorException("\"" + t->getName() + "\" is not an object.", position);
 		}
-		return static_cast<WTClass *>(t)->methods[name];
+		return static_cast<WTClass *>(t)->getMethods()[name];
 	}
 	return builder.getFunctions()[name];
 }

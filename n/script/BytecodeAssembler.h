@@ -73,6 +73,8 @@ class BytecodeAssembler
 		BytecodeAssembler &copy(RegisterType to, RegisterType from);
 		BytecodeAssembler &set(RegisterType to, int64 value);
 
+		BytecodeAssembler &newObj(RegisterType to);
+
 		BytecodeAssembler &toFloat(RegisterType to, RegisterType from);
 
 		BytecodeAssembler &jump(Label to);
@@ -87,7 +89,8 @@ class BytecodeAssembler
 		BytecodeAssembler &retI(int64 value);
 
 
-		BytecodeAssembler &function(UnsignedDataType index, RegisterType stack, RegisterType args);
+		BytecodeAssembler &function(RegisterType index, RegisterType stack, RegisterType args);
+		BytecodeAssembler &classDecl();
 
 
 		BytecodeAssembler &exit();

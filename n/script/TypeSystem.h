@@ -36,6 +36,7 @@ class TypeSystem : NonCopyable
 		DataType *getFloatType() const;
 
 		void addType(DataType *type);
+		const core::Map<core::String, DataType *> &getAll() const;
 
 		bool assign(DataType *lhs, DataType *rhs);
 

@@ -122,6 +122,10 @@ void Machine::run(const BytecodeInstruction *bcode, Primitive *mem, Primitive *r
 				m->real = i->fdata;
 			break;
 
+			case Bytecode::New:
+				m->object = new RuntimeObject(classes.last().vtable.begin());
+			break;
+
 			case Bytecode::ToFloat:
 				m->real = mem[i->src[0]].integer;
 			break;
@@ -150,9 +154,16 @@ void Machine::run(const BytecodeInstruction *bcode, Primitive *mem, Primitive *r
 				memcpy(mem + 1, argStackTop, sizeof(Primitive) * i->src[0]); // for 'this'
 			break;
 
-			case Bytecode::Call:
-				*stackTop = mem[i->src[0]];
-				run(funcTable[i->src[1]], stackTop, m);
+			case Bytecode::ClassHead:
+				fatal("ClassHead in bytecode");
+			break;
+
+			case Bytecode::Invoke:
+				tmp = *stackTop = mem[i->src[0]];
+				if(!tmp.object) {
+					fatal("nullptr");
+				}
+				run(tmp.object->vptr[i->src[1]], stackTop, m);
 			break;
 
 			case Bytecode::PushArg:
@@ -166,6 +177,8 @@ void Machine::run(const BytecodeInstruction *bcode, Primitive *mem, Primitive *r
 
 			case Bytecode::Ret:
 				*ret = *m;
+				return;
+
 			case Bytecode::Exit:
 				return;
 
@@ -176,13 +189,17 @@ void Machine::run(const BytecodeInstruction *bcode, Primitive *mem, Primitive *r
 void Machine::load(const BytecodeInstruction *bcode, const BytecodeInstruction *end) {
 	for(const BytecodeInstruction *i = bcode; i != end; i++) {
 		switch(i->op) {
-			case Bytecode::FuncHead1:
-				while(funcTable.size() <= i->udata) {
-					funcTable << nullptr;
-				}
-				funcTable[i->udata] = i;
+
+			case Bytecode::ClassHead:
+				classes << RuntimeClassInfo();
 			break;
 
+			case Bytecode::FuncHead1:
+				while(classes.last().vtable.size() <= i->dst) {
+					classes.last().vtable << nullptr;
+				}
+				classes.last().vtable[i->dst] = i;
+			break;
 
 			default:
 			break;

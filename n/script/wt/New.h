@@ -13,37 +13,25 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **********************************/
-#include "DataType.h"
+#ifndef N_SCRIPT_WT_NEW_H
+#define N_SCRIPT_WT_NEW_H
+
+#include <n/script/WTNode.h>
 
 namespace n {
 namespace script {
 
-DataType::DataType(const core::String &typeName, bool obj) : name(typeName), object(obj) {
-}
+namespace wt {
 
-const core::String &DataType::getName() const {
-	return name;
-}
+struct New : public WTExpression
+{
+	New(DataType *type, uint reg) : WTExpression(WTNode::New, type, reg) {
+	}
 
-bool DataType::isObject() const {
-	return object;
-}
-
-const FunctionTable &DataType::getMethods() const {
-	return methods;
-}
-
-FunctionTable &DataType::getMethods() {
-	return methods;
-}
-
-const Scope &DataType::getScope() const {
-	return scope;
-}
-
-Scope &DataType::getScope() {
-	return scope;
-}
+};
 
 }
 }
+}
+
+#endif // N_SCRIPT_WT_NEW_H

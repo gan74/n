@@ -31,6 +31,10 @@ void TypeSystem::addType(DataType *type) {
 	types[type->getName()] = type;
 }
 
+const core::Map<core::String, DataType *> &TypeSystem::getAll() const {
+	return types;
+}
+
 DataType *TypeSystem::getType(const core::String &name) const {
 	core::Map<core::String, DataType *>::const_iterator it = types.find(name);
 	return it == types.end() ? 0 : it->_2;

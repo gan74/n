@@ -16,6 +16,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "BytecodeCompiler.h"
 #include "exceptions.h"
 
+#include <iostream>
+
 namespace n {
 namespace script {
 
@@ -41,11 +43,27 @@ BytecodeAssembler BytecodeCompiler::compile(WTStatement *node, TypeSystem *ts) {
 	assembler.ret(0);
 	assembler.exit();
 
+	for(const auto &p : ts->getAll()) {
+		compile(context, p._2);
+	}
+
 	for(const core::Pair<WTFunction * const, BytecodeAssembler> &p : context.externalAssemblers) {
 		assembler << p._2;
 	}
 
 	return assembler;
+}
+
+
+void BytecodeCompiler::compile(Context &context, DataType *type) {
+	if(type->getMethods().getAll().isEmpty()) {
+		return;
+	}
+
+	context.assembler->classDecl();
+	for(const auto &p : type->getMethods().getAll()) {
+		compile(context, p._2);
+	}
 }
 
 void BytecodeCompiler::compile(Context &context, WTStatement *node) {
@@ -131,6 +149,10 @@ void BytecodeCompiler::compile(Context &context, WTStatement *node) {
 }
 
 void BytecodeCompiler::compile(Context &context, WTFunction *func) {
+	if(context.externalAssemblers.exists(func)) {
+		return;
+	}
+
 	BytecodeAssembler *ass = context.assembler;
 	context.assembler = &context.externalAssemblers[func];
 
@@ -164,9 +186,7 @@ void BytecodeCompiler::compile(Context &context, WTExpression *node) {
 		return;
 
 		case WTNode::Call:
-			if(!context.externalAssemblers.exists(as<wt::Call>(node)->func)) {
-				compile(context, as<wt::Call>(node)->func);
-			}
+			//compile(context, as<wt::Call>(node)->func);
 			for(WTExpression *e : as<wt::Call>(node)->args) {
 				compile(context, e);
 				context.assembler->pushArg(e->registerIndex);
@@ -184,6 +204,7 @@ void BytecodeCompiler::compile(Context &context, WTExpression *node) {
 		case WTNode::Variable:
 		return;
 
+
 		case WTNode::Cast:
 			if(as<wt::Cast>(node)->expressionType == context.typeSystem->getFloatType() && as<wt::Cast>(node)->expression->expressionType == context.typeSystem->getIntType()) {
 				compile(context, as<wt::Cast>(node)->expression);
@@ -191,6 +212,11 @@ void BytecodeCompiler::compile(Context &context, WTExpression *node) {
 			} else {
 				throw CompilationErrorException("Invalid type cast", node);
 			}
+		break;
+
+
+		case WTNode::New:
+			context.assembler->newObj(node->registerIndex);
 		break;
 
 

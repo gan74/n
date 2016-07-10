@@ -133,6 +133,11 @@ BytecodeAssembler &BytecodeAssembler::set(RegisterType to, int64 value) {
 	return ass(BCI(Bytecode::SetI, to, val));
 }
 
+BytecodeAssembler &BytecodeAssembler::newObj(RegisterType to) {
+	return ass(BCI(Bytecode::New, to));
+}
+
+
 BytecodeAssembler &BytecodeAssembler::toFloat(RegisterType to, RegisterType from) {
 	return ass(BCI(Bytecode::ToFloat, to, from));
 }
@@ -158,7 +163,7 @@ BytecodeAssembler &BytecodeAssembler::jumpZ(RegisterType a, Label to) {
 }*/
 
 BytecodeAssembler &BytecodeAssembler::call(RegisterType to, RegisterType obj, RegisterType index) {
-	return ass(BCI(Bytecode::Call, to, obj, index));
+	return ass(BCI(Bytecode::Invoke, to, obj, index));
 }
 
 BytecodeAssembler &BytecodeAssembler::pushArg(RegisterType arg) {
@@ -179,9 +184,13 @@ BytecodeAssembler &BytecodeAssembler::retI(int64 value) {
 }
 
 
-BytecodeAssembler &BytecodeAssembler::function(UnsignedDataType index, RegisterType stack, RegisterType args) {
-	ass(BCI(Bytecode::FuncHead1, 0, index));
+BytecodeAssembler &BytecodeAssembler::function(RegisterType index, RegisterType stack, RegisterType args) {
+	ass(BCI(Bytecode::FuncHead1, index));
 	return ass(BCI(Bytecode::FuncHead2, stack, args));
+}
+
+BytecodeAssembler &BytecodeAssembler::classDecl() {
+	return ass(BCI(Bytecode::ClassHead));
 }
 
 

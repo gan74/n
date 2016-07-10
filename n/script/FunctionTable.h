@@ -37,6 +37,8 @@ class FunctionTable : NonCopyable
 		WTFunction *declare(const core::String &name, DataType *returnType);
 		WTFunction *operator[](const core::String &name) const;
 
+		const FMap &getAll() const;
+
 	private:
 		FMap functions;
 
