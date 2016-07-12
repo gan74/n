@@ -35,13 +35,11 @@ class DataType : NonCopyable
 		const Scope &getScope() const;
 		Scope &getScope();
 
-		uint getIndex() const;
-
 	private:
 		friend class PrimitiveDataType;
 		friend class ObjectDataType;
 
-		DataType(const core::String &typeName, bool obj, uint i);
+		DataType(const core::String &typeName, bool obj);
 
 		const core::String name;
 		const bool object;
@@ -49,13 +47,12 @@ class DataType : NonCopyable
 		FunctionTable methods;
 		Scope scope;
 
-		uint index;
 };
 
 class PrimitiveDataType : public DataType
 {
 	public:
-		PrimitiveDataType(const core::String &name, uint index, int coerceOrder = 0) : DataType(name, false, index), order(coerceOrder) {
+		PrimitiveDataType(const core::String &name, int coerceOrder = 0) : DataType(name, false), order(coerceOrder) {
 		}
 
 		int getCoercionOrder() const {
@@ -69,7 +66,7 @@ class PrimitiveDataType : public DataType
 class ObjectDataType : public DataType
 {
 	public:
-		ObjectDataType(const core::String &name, uint index) : DataType(name, true, index) {
+		ObjectDataType(const core::String &name) : DataType(name, true) {
 		}
 
 
@@ -81,14 +78,14 @@ class ObjectDataType : public DataType
 class IntDataType : public PrimitiveDataType
 {
 	public:
-		IntDataType() : PrimitiveDataType("Int", 0, 0) {
+		IntDataType() : PrimitiveDataType("Int", 0) {
 		}
 };
 
 class FloatDataType : public PrimitiveDataType
 {
 	public:
-		FloatDataType() : PrimitiveDataType("Float", 1, 1) {
+		FloatDataType() : PrimitiveDataType("Float", 1) {
 		}
 };
 

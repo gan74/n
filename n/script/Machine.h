@@ -30,13 +30,14 @@ class Machine : NonCopyable
 
 		Primitive run(const BytecodeInstruction *bcode, uint memSize = 1 << 16);
 
-
 	private:
-		void run(const BytecodeInstruction *bcode, Primitive *mem, Primitive *ret);
+		void run(const BytecodeInstruction *bcode, Primitive *mem, Primitive *stackTop, Primitive *ret);
 
 		Primitive *argStackTop;
 
-		core::Array<RuntimeClassInfo> classes;
+		core::Array<RuntimeClassInfo *> classes;
+
+		RuntimeClassInfo *getClass(const core::String &name);
 
 
 };

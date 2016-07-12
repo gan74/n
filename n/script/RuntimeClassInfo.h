@@ -17,17 +17,34 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define N_SCRIPT_RUNTIMECLASSINFO_H
 
 #include "Bytecode.h"
+#include <n/core/String.h>
 #include <n/core/Array.h>
 
 namespace n {
 namespace script {
 
+struct RuntimeFuncInfo
+{
+	const BytecodeInstruction *ptr;
+	uint args;
+	uint stackSize;
+	uint index;
+	core::String name;
+
+
+	static RuntimeFuncInfo error;
+};
+
 class RuntimeClassInfo
 {
 	public:
-		RuntimeClassInfo();
+		RuntimeClassInfo(const core::String &n);
 
-		core::Array<const BytecodeInstruction *> vtable;
+		const RuntimeFuncInfo &getMethod(const core::String &n) const;
+		const RuntimeFuncInfo &getMethod(uint index) const;
+
+		core::String name;
+		core::Array<RuntimeFuncInfo> vtable;
 };
 
 }

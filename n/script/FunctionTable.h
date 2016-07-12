@@ -39,6 +39,10 @@ class FunctionTable : NonCopyable
 
 		const FMap &getAll() const;
 
+		uint size() const {
+			return getAll().size();
+		}
+
 	private:
 		FMap functions;
 

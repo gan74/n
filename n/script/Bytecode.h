@@ -26,6 +26,13 @@ enum Bytecode : uint16
 {
 	Nope,
 
+	Constants,
+
+	FuncHead1, // func id, class id
+	FuncHead2, // arg num, stack size
+
+	ClassHead,
+
 	AddI,
 	SubI,
 	MulI,
@@ -60,20 +67,13 @@ enum Bytecode : uint16
 	JumpZ,
 	JumpNZ,
 
-	FuncHead1, // func id, class id
-	FuncHead2, // arg num, stack size
-
-	//ClassHead,
-
-	InvokeStatic,
 	InvokeVirtual,
 
 	PushArg,
 	Ret,
 	RetI,
 
-	Exit
-
+	Exit,
 };
 
 struct BytecodeInstruction
@@ -86,6 +86,8 @@ struct BytecodeInstruction
 
 	Bytecode op;
 	RegisterType dst;
+
+	static constexpr uint registerCount = (sizeof(Bytecode) + sizeof(RegisterType) + sizeof(DataType)) / sizeof(RegisterType);
 
 	union
 	{
@@ -113,6 +115,7 @@ struct BytecodeInstruction
 
 };
 
+
 union Primitive
 {
 	int64 integer;
@@ -121,6 +124,7 @@ union Primitive
 };
 
 static_assert(sizeof(BytecodeInstruction) == 8, "BytecodeInstruction should be 64 bits");
+static_assert(sizeof(BytecodeInstruction) == 4 * sizeof(BytecodeInstruction::RegisterType), "BytecodeInstruction should be 64 bits");
 static_assert(sizeof(Primitive) == 8, "Primitive should be 64 bits");
 static_assert(sizeof(double) == sizeof(int64), "Primitive should be 64 bits");
 

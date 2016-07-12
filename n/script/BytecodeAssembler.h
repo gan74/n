@@ -81,7 +81,6 @@ class BytecodeAssembler
 		BytecodeAssembler &jumpNZ(RegisterType a, Label to);
 		BytecodeAssembler &jumpZ(RegisterType a, Label to);
 
-		BytecodeAssembler &callStatic(RegisterType to, RegisterType classId, RegisterType index);
 		BytecodeAssembler &callVirtual(RegisterType to, RegisterType obj, RegisterType index);
 
 		BytecodeAssembler &pushArg(RegisterType arg);
@@ -90,11 +89,13 @@ class BytecodeAssembler
 
 
 		BytecodeAssembler &function(RegisterType classId, RegisterType index, RegisterType stack, RegisterType args);
-		//BytecodeAssembler &classDecl();
+		BytecodeAssembler &classDecl(RegisterType classId);
 
 
 		BytecodeAssembler &exit();
 		BytecodeAssembler &endFunc();
+
+		BytecodeAssembler &constants(const core::Array<core::String> &strings);
 
 
 		void seek(Label to);

@@ -93,7 +93,7 @@ struct WTVariable : public WTExpression
 
 struct WTFunction : NonCopyable
 {
-	WTFunction(const core::String &n, DataType *ret, uint ind, WTStatement *bod = 0) : name(n), body(bod), returnType(ret), index(ind) {
+	WTFunction(const core::String &n, DataType *ret, WTStatement *bod = 0) : name(n), body(bod), returnType(ret) {
 	}
 
 	core::String name;
@@ -103,7 +103,14 @@ struct WTFunction : NonCopyable
 
 	Scope scope;
 
-	uint index;
+	core::String signature;
+
+	void computeSignature() {
+		signature = returnType->getName() + " " + name;
+		for(WTVariable *a : args) {
+			signature += " " + a->name;
+		}
+	}
 };
 
 }

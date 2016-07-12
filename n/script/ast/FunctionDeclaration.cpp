@@ -57,6 +57,8 @@ void ast::FunctionDeclaration::lookupFunctions(ClassBuilder &builder) const {
 		}
 		function->args << function->scope.declare(d->name, builder.getTypeSystem()[d->typeName]);
 	}
+
+	function->computeSignature();
 }
 
 }

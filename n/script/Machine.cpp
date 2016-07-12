@@ -27,23 +27,38 @@ Primitive Machine::run(const BytecodeInstruction *bcode, uint memSize) {
 		memory[i].integer = 0;
 	}
 	Primitive ret;
-	run(bcode, memory, &ret);
+	run(bcode, memory, memory + 8, &ret);
 
 	delete[] memory;
 	return ret;
 }
 
-void Machine::run(const BytecodeInstruction *bcode, Primitive *mem, Primitive *ret) {
-	Primitive *stackTop = mem;
+void Machine::run(const BytecodeInstruction *bcode, Primitive *mem, Primitive *stackTop, Primitive *ret) {
+
+	Primitive tmp;
+	RuntimeFuncInfo &function = RuntimeFuncInfo::error;
 
 	for(const BytecodeInstruction *i = bcode;; i++) {
 
 		Primitive *m = mem + i->dst;
-		Primitive tmp;
 
 		switch(i->op) {
 
 			case Bytecode::Nope:
+			break;
+
+			case Bytecode::Constants:
+				i += i->udata;
+			break;
+
+			case Bytecode::FuncHead1:
+				i++;
+			case Bytecode::FuncHead2:
+				//fatal("FuncHead in bytecode");
+			break;
+
+			case Bytecode::ClassHead:
+				fatal("ClassHead in bytecode");
 			break;
 
 			case Bytecode::AddI:
@@ -123,7 +138,7 @@ void Machine::run(const BytecodeInstruction *bcode, Primitive *mem, Primitive *r
 			break;
 
 			case Bytecode::New:
-				m->object = new RuntimeObject(classes.last().vtable.begin());
+				m->object = new RuntimeObject(classes.last());
 			break;
 
 			case Bytecode::ToFloat:
@@ -146,24 +161,16 @@ void Machine::run(const BytecodeInstruction *bcode, Primitive *mem, Primitive *r
 				}
 			break;
 
-			case Bytecode::FuncHead1:
-				i++;
-			case Bytecode::FuncHead2:
-				stackTop = mem + i->dst;
-				argStackTop -= i->src[0];
-				memcpy(mem + 1, argStackTop, sizeof(Primitive) * i->src[0]); // for 'this'
-			break;
-
 			case Bytecode::InvokeVirtual:
 				tmp = *stackTop = mem[i->src[0]];
 				if(!tmp.object) {
 					fatal("nullptr");
 				}
-				run(tmp.object->vptr[i->src[1]], stackTop, m);
-			break;
-
-			case Bytecode::InvokeStatic:
-				run(classes[i->src[0]].vtable[i->src[1]], stackTop, m);
+				/*run(tmp.object->vptr[i->src[1]], stackTop, m);*/
+				function = tmp.object->classInfo->getMethod(i->src[1]);
+				argStackTop -= function.args;
+				memcpy(stackTop + 1, argStackTop, sizeof(Primitive) * function.args);
+				run(function.ptr, stackTop, stackTop + function.stackSize, m);
 			break;
 
 			case Bytecode::PushArg:
@@ -187,29 +194,49 @@ void Machine::run(const BytecodeInstruction *bcode, Primitive *mem, Primitive *r
 }
 
 void Machine::load(const BytecodeInstruction *bcode, const BytecodeInstruction *end) {
+	core::Array<core::String> strings;
 	for(const BytecodeInstruction *i = bcode; i != end; i++) {
 		switch(i->op) {
 
 			case Bytecode::FuncHead1: {
-				uint funcId = i->dst;
-				uint classId = i->src[0];
-
-				while(classes.size() <= classId) {
-					classes << RuntimeClassInfo();
-				}
-				RuntimeClassInfo &cl = classes[classId];
-
-				while(cl.vtable.size() <= funcId) {
-					cl.vtable << nullptr;
-				}
-				cl.vtable[funcId] = i;
-
+				uint classId = i->dst;
+				uint funcId = i->src[0];
+				uint stack = (i + 1)->dst;
+				uint args = (i + 1)->src[0];
+				//std::cout << strings[classId] << " :: " << strings[funcId] << std::endl;
+				getClass(strings[classId])->vtable << RuntimeFuncInfo{i, args, stack, funcId, strings[funcId]};
 			} break;
+
+			case Bytecode::Constants: {
+				const BytecodeInstruction *data = i + 1;
+				while(data != i + i->udata) {
+					core::String string(reinterpret_cast<const char *>(data));
+					uint si = string.size() + 1;
+					data += si / sizeof(BytecodeInstruction);
+					data += !!(si % sizeof(BytecodeInstruction));
+					strings << string;
+				}
+				i += i->udata;
+			} break;
+
+			case Bytecode::ClassHead:
+				classes << new RuntimeClassInfo(strings[i->dst]);
+				//std::cout << "class " << classes.last().name << std::endl;
+			break;
 
 			default:
 			break;
 		}
 	}
+}
+
+RuntimeClassInfo *Machine::getClass(const core::String &name) {
+	for(RuntimeClassInfo *i : classes) {
+		if(i->name == name) {
+			return i;
+		}
+	}
+	return 0;
 }
 
 }

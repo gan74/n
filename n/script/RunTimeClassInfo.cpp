@@ -18,8 +18,29 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace n {
 namespace script {
 
-RuntimeClassInfo::RuntimeClassInfo() {
+RuntimeFuncInfo RuntimeFuncInfo::error = RuntimeFuncInfo{0, 0, 0, 0, ""};
+
+RuntimeClassInfo::RuntimeClassInfo(const core::String &n) : name(n) {
 }
+
+const RuntimeFuncInfo &RuntimeClassInfo::getMethod(uint index) const {
+	for(const RuntimeFuncInfo &m : vtable) {
+		if(m.index == index) {
+			return m;
+		}
+	}
+	return RuntimeFuncInfo::error;
+}
+
+const RuntimeFuncInfo &RuntimeClassInfo::getMethod(const core::String &n) const {
+	for(const RuntimeFuncInfo &m : vtable) {
+		if(m.name == n) {
+			return m;
+		}
+	}
+	return RuntimeFuncInfo::error;
+}
+
 
 }
 }

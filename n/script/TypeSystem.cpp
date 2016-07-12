@@ -31,9 +31,6 @@ DataType *TypeSystem::addType(DataType *ty) {
 	return types[ty->getName()] = ty;
 }
 
-DataType *TypeSystem::addType(const core::String &name) {
-	return addType(new ObjectDataType(name, types.size()));
-}
 
 const core::Map<core::String, DataType *> &TypeSystem::getAll() const {
 	return types;

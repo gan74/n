@@ -15,6 +15,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **********************************/
 #include "BytecodeAssembler.h"
 
+
 namespace n {
 namespace script {
 
@@ -158,10 +159,6 @@ BytecodeAssembler &BytecodeAssembler::jumpZ(RegisterType a, Label to) {
 	return ass(BCI(Bytecode::JumpZ, a, to.index - 1));
 }
 
-BytecodeAssembler &BytecodeAssembler::callStatic(RegisterType to, RegisterType classId, RegisterType index) {
-	return ass(BCI(Bytecode::InvokeStatic, to, classId, index));
-}
-
 BytecodeAssembler &BytecodeAssembler::callVirtual(RegisterType to, RegisterType obj, RegisterType index) {
 	return ass(BCI(Bytecode::InvokeVirtual, to, obj, index));
 }
@@ -184,13 +181,13 @@ BytecodeAssembler &BytecodeAssembler::retI(int64 value) {
 }
 
 BytecodeAssembler &BytecodeAssembler::function(RegisterType classId, RegisterType index, RegisterType stack, RegisterType args) {
-	ass(BCI(Bytecode::FuncHead1, index, classId));
+	ass(BCI(Bytecode::FuncHead1, classId, index));
 	return ass(BCI(Bytecode::FuncHead2, stack, args));
 }
 
-/*BytecodeAssembler &BytecodeAssembler::classDecl() {
-	return ass(BCI(Bytecode::ClassHead));
-}*/
+BytecodeAssembler &BytecodeAssembler::classDecl(RegisterType classId) {
+	return ass(BCI(Bytecode::ClassHead, classId));
+}
 
 BytecodeAssembler &BytecodeAssembler::exit() {
 	return ass(BCI(Bytecode::Exit));
@@ -204,6 +201,25 @@ BytecodeAssembler &BytecodeAssembler::endFunc() {
 		}
 	}
 	return ass(BCI(Bytecode::Exit));
+}
+
+BytecodeAssembler &BytecodeAssembler::constants(const core::Array<core::String> &strings) {
+	if(index != in.size()) {
+		fatal("BytecodeAssembler not at end");
+	}
+	uint i = in.size();
+	in << BCI(Bytecode::Constants, strings.size());
+	for(const core::String &s : strings) {
+		uint j = in.size();
+		for(uint k = 0; k < s.size() + 1; k += sizeof(BCI)) {
+			in << BCI(Bytecode::Nope);
+		}
+		memcpy(&in[j], s.data(), s.size());
+	}
+	in[i].udata = in.size() - i;
+
+	index = in.size();
+	return *this;
 }
 
 

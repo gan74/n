@@ -36,7 +36,7 @@ void ClassDeclaration::lookupTypes(TypeSystem &ts) const {
 		throw ValidationErrorException("\"" + name + "\" has already been declared in this scope", position);
 	}
 
-	ts.addType(name);
+	ts.addType(new ObjectDataType(name));
 	body->lookupTypes(ts);
 }
 

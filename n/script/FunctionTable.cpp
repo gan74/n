@@ -32,7 +32,7 @@ WTFunction *FunctionTable::declare(const core::String &name, DataType *returnTyp
 	if(functions.exists(name)) {
 		return 0;
 	}
-	WTFunction *f = new WTFunction(name, returnType, functions.size());
+	WTFunction *f = new WTFunction(name, returnType);
 	return functions[name] = f;
 }
 

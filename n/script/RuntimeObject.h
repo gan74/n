@@ -19,15 +19,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace n {
 namespace script {
 
-class BytecodeInstruction;
+class RuntimeClassInfo;
 
 class RuntimeObject
 {
 	public:
-		RuntimeObject(const BytecodeInstruction **v) : vptr(v) {
+		RuntimeObject(const RuntimeClassInfo *c) : classInfo(c) {
 		}
 
-		const BytecodeInstruction **vptr;
+		const RuntimeClassInfo *classInfo;
 };
 
 }

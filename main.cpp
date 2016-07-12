@@ -68,7 +68,7 @@ int main(int, char **) {
 	Parser parser;
 
 	TypeSystem types;
-	DataType *global = types.addType("the global scope");
+	ObjectDataType global("the global scope");
 
 	try {
 		ASTStatement *node = parser.parse(tks);
@@ -76,7 +76,7 @@ int main(int, char **) {
 
 		node->lookupTypes(types);
 
-		ClassBuilder builder(&types, global);
+		ClassBuilder builder(&types, &global);
 		node->lookupFunctions(builder);
 		WTStatement *wt = node->toWorkTree(builder);
 
@@ -85,7 +85,13 @@ int main(int, char **) {
 
 
 		uint index = 0;
-		for(BytecodeInstruction i : ass.getInstructions()) {
+		for(uint j = 0; j != ass.getInstructions().size(); j++) {
+			BytecodeInstruction i = ass.getInstructions()[j];
+			if(i.op == Bytecode::Constants) {
+				std::cout << "\tconstants " << i.dst << std::endl;
+				j += i.udata;
+				continue;
+			}
 			if(i.op == Bytecode::FuncHead1) {
 				index = 0;
 			}
@@ -139,6 +145,13 @@ void print(uint index, BytecodeInstruction i) {
 	names[Bytecode::Equals] = "eq";
 	names[Bytecode::NotEq] = "neq";
 	switch(i.op) {
+		case Bytecode::Constants:
+		break;
+
+		case Bytecode::ClassHead:
+			std::cout << "class " << i.dst;
+		break;
+
 		case Bytecode::SetI:
 			std::cout << "seti $" << i.dst << " " << i.data;
 		break;
@@ -179,9 +192,9 @@ void print(uint index, BytecodeInstruction i) {
 			std::cout << "ivkvirtual $" << i.dst << " $" << i.src[0] << " " << i.src[1] + 1;
 		break;
 
-		case Bytecode::InvokeStatic:
+		/*case Bytecode::InvokeStatic:
 			std::cout << "ivkstatic $" << i.dst << " " << i.src[0] << " " << i.src[1] + 1;
-		break;
+		break;*/
 
 		case Bytecode::PushArg:
 			std::cout << "push $" << i.dst;

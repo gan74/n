@@ -24,22 +24,45 @@ T *as(U *n) {
 	return static_cast<T *>(n);
 }
 
+uint indexOf(const core::String &name, core::Array<core::String> &strings) {
+	for(uint i = 0; i != strings.size(); i++) {
+		if(strings[i] == name) {
+			return i;
+		}
+	}
+	strings << name;
+	return strings.size() - 1;
+}
+
+uint indexOf(WTFunction *func, core::Array<core::String> &strings) {
+	return indexOf(func->signature, strings);
+}
+
+uint indexOf(DataType *type, core::Array<core::String> &strings) {
+	return indexOf(type->getName(), strings);
+}
+
 
 BytecodeCompiler::BytecodeCompiler() {
 }
 
 BytecodeAssembler BytecodeCompiler::compile(WTStatement *node, TypeSystem *ts) {
 	BytecodeAssembler assembler;
+	BytecodeAssembler constants;
+
 	Context context{
-		core::Map<WTFunction *, BytecodeAssembler>(),
+		{},
+		{},
 		&assembler,
 		ts,
+		0,
 		false};
 
 	compile(context, node);
 
 	assembler.ret(0);
 	assembler.exit();
+
 
 	for(const auto &p : ts->getAll()) {
 		compile(context, p._2);
@@ -49,7 +72,10 @@ BytecodeAssembler BytecodeCompiler::compile(WTStatement *node, TypeSystem *ts) {
 		assembler << p._2;
 	}
 
-	return assembler;
+	constants.constants(context.strings);
+	constants << assembler;
+
+	return constants;
 }
 
 
@@ -57,11 +83,30 @@ void BytecodeCompiler::compile(Context &context, DataType *type) {
 	if(type->getMethods().getAll().isEmpty()) {
 		return;
 	}
+	DataType *t = context.type;
+	context.type = type;
 
-	//context.assembler->classDecl();
+	context.assembler->classDecl(indexOf(type, context.strings));
 	for(const auto &p : type->getMethods().getAll()) {
 		compile(context, p._2);
 	}
+
+	context.type = t;
+}
+
+void BytecodeCompiler::compile(Context &context, WTFunction *func) {
+	if(context.externalAssemblers.exists(func)) {
+		return;
+	}
+
+	BytecodeAssembler *ass = context.assembler;
+	context.assembler = &context.externalAssemblers[func];
+
+	context.assembler->function(indexOf(context.type, context.strings), indexOf(func, context.strings), func->scope.getStackSize(), func->args.size());
+	compile(context, func->body);
+	context.assembler->endFunc();
+
+	context.assembler = ass;
 }
 
 void BytecodeCompiler::compile(Context &context, WTStatement *node) {
@@ -146,21 +191,6 @@ void BytecodeCompiler::compile(Context &context, WTStatement *node) {
 	}
 }
 
-void BytecodeCompiler::compile(Context &context, WTFunction *func) {
-	if(context.externalAssemblers.exists(func)) {
-		return;
-	}
-
-	BytecodeAssembler *ass = context.assembler;
-	context.assembler = &context.externalAssemblers[func];
-
-	context.assembler->function(0, func->index, func->scope.getStackSize(), func->args.size());
-	compile(context, func->body);
-	context.assembler->endFunc();
-
-	context.assembler = ass;
-}
-
 void BytecodeCompiler::compile(Context &context, WTExpression *node) {
 	switch(node->type) {
 
@@ -188,7 +218,11 @@ void BytecodeCompiler::compile(Context &context, WTExpression *node) {
 			WTExpression *o = c->object;
 
 			if(!o->expressionType->isObject()) {
-				context.assembler->pushArg(c->object->registerIndex);
+				fatal("call on non-object");
+			}
+
+			if(!o->expressionType->isObject()) {
+				context.assembler->pushArg(o->registerIndex);
 			}
 			for(WTExpression *e : c->args) {
 				compile(context, e);
@@ -196,11 +230,7 @@ void BytecodeCompiler::compile(Context &context, WTExpression *node) {
 			}
 			compile(context, o);
 
-			if(o->expressionType->isObject()) {
-				context.assembler->callVirtual(c->registerIndex, o->registerIndex, c->func->index);
-			} else {
-				context.assembler->callStatic(c->registerIndex, o->expressionType->getIndex(), c->func->index);
-			}
+			context.assembler->callVirtual(c->registerIndex, o->registerIndex, indexOf(c->func, context.strings));
 		} return;
 
 
