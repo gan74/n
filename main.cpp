@@ -48,12 +48,12 @@ void run(ASTStatement *node, ClassBuilder &builder) {
 int main(int, char **) {
 	core::String code = "class App = "
 						"{"
-							"def fib2():Int = {"
-								"return fib(32);"
-							"}"
 							"def fib(a:Int):Int = {"
 								"if(a < 1) return 1;"
 								"return fib(a - 1) + fib(a - 2);"
+							"}"
+							"def fib2():Int = {"
+								"return fib(32);"
 							"}"
 						"}"
 						"var x:Int = 32;"
@@ -89,6 +89,14 @@ int main(int, char **) {
 			BytecodeInstruction i = ass.getInstructions()[j];
 			if(i.op == Bytecode::Constants) {
 				std::cout << "\tconstants " << i.dst << std::endl;
+				const BytecodeInstruction *data = &ass.getInstructions()[j + 1];
+				for(uint k = 0; k != i.dst; k++) {
+					core::String string(reinterpret_cast<const char *>(data));
+					std::cout << "\t  \"" << string << "\"" << std::endl;
+					uint si = string.size() + 1;
+					data += si / sizeof(BytecodeInstruction);
+					data += !!(si % sizeof(BytecodeInstruction));
+				}
 				j += i.udata;
 				continue;
 			}
