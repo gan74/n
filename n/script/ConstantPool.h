@@ -37,11 +37,12 @@ class ConstantPool : NonCopyable
 		c_str get(uint index) const;
 
 	private:
-		ConstantPool(const char *d, const char **strs) : data(d), strings(strs) {
+		ConstantPool(const char *d, const char **strs, uint s) : data(d), strings(strs), size(s) {
 		}
 
 		const char *data;
 		c_str *strings;
+		uint size;
 
 };
 

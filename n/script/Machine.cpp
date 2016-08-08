@@ -65,7 +65,7 @@ void Machine::run(FunctionInfo info, Primitive *mem, Primitive *ret) {
 
 		switch(i->op) {
 
-			case Bytecode::Nope:
+			case Bytecode::Nop:
 			break;
 
 			case Bytecode::Constants:
@@ -220,29 +220,41 @@ void Machine::run(FunctionInfo info, Primitive *mem, Primitive *ret) {
 }
 
 void Machine::load(const BytecodeInstruction *bcode, const BytecodeInstruction *end) {
+
+	struct FuncAlloc : NonCopyable
+	{
+		FuncAlloc(Machine *m) : begin(0), ma(m) {
+		}
+
+		void operator<<(const BytecodeInstruction *b) {
+			if(begin && begin->op == Bytecode::FuncHead1) {
+				ma->allocFunction(begin, b);
+			}
+			begin = b;
+		}
+
+		const BytecodeInstruction *begin;
+		Machine *ma;
+
+	} funcAllocator(this);
+
+
 	for(const BytecodeInstruction *i = bcode; i != end; i++) {
 		switch(i->op) {
 			case Bytecode::FuncHead1: {
-				if(constPools.isEmpty()) {
-					fatal("No constant pool");
-				}
-
-				uint classId = i->dst;
-				uint funcId = i->src[0];
-				uint stack = (i + 1)->dst;
-				uint args = (i + 1)->src[0];
-
-				getClass(constPools.last()->get(classId))->functions << FunctionInfo{i, args, stack, constPools.last()->get(funcId), constPools.last()};
-
-				std::cout << "def " << getClass(constPools.last()->get(classId))->name << "." << getClass(constPools.last()->get(classId))->functions.last().name << std::endl;
+				funcAllocator << i;
 			} break;
 
 			case Bytecode::Constants: {
+				funcAllocator << i;
+
 				constPools << ConstantPool::createPool(i);
 				i += i->udata;
 			} break;
 
 			case Bytecode::ClassHead:
+				funcAllocator << i;
+
 				if(constPools.isEmpty()) {
 					fatal("No constant pool");
 				}
@@ -255,8 +267,37 @@ void Machine::load(const BytecodeInstruction *bcode, const BytecodeInstruction *
 			break;
 		}
 	}
+
+	funcAllocator << end;
 }
 
+void Machine::allocFunction(const BytecodeInstruction *begin, const BytecodeInstruction *end) {
+	if(!begin || begin->op != Bytecode::FuncHead1) {
+		return;
+	}
+
+	if(constPools.isEmpty()) {
+		fatal("No constant pool");
+	}
+	uint classId = begin->dst;
+	uint funcId = begin->src[0];
+	uint stack = (begin + 1)->dst;
+	uint args = (begin + 1)->src[0];
+
+	BytecodeInstruction *funcMem = new BytecodeInstruction[end - begin];
+	memcpy(funcMem, begin, (end - begin) * sizeof(BytecodeInstruction));
+	functions << funcMem;
+
+	ClassInfo *classInfo = getClass(constPools.last()->get(classId));
+
+	if(!classInfo) {
+		fatal("Invalid class");
+	}
+
+	classInfo->functions << FunctionInfo{funcMem, args, stack, constPools.last()->get(funcId), constPools.last()};
+
+	std::cout << "def " << classInfo->name << "." << classInfo->functions.last().name << std::endl;
+}
 
 ClassInfo *Machine::getClass(const char *name) {
 	for(ClassInfo *i : classes) {

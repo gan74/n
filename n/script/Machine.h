@@ -33,12 +33,15 @@ class Machine : NonCopyable
 
 	private:
 		void run(FunctionInfo info, Primitive *mem, Primitive *ret);
+		void allocFunction(const BytecodeInstruction *begin, const BytecodeInstruction *end);
 
 		ClassInfo *getClass(const char *name);
 
 		Primitive *argStackTop;
-		core::Array<ClassInfo *> classes;
+
 		core::Array<ConstantPool *> constPools;
+		core::Array<ClassInfo *> classes;
+		core::Array<BytecodeInstruction *> functions;
 
 
 

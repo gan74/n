@@ -25,6 +25,10 @@ ConstantPool::~ConstantPool() {
 }
 
 ConstantPool::c_str ConstantPool::get(uint index) const {
+	static constexpr char empty = 0;
+	if(index >= size) {
+		return &empty;
+	}
 	return strings[index];
 }
 
@@ -55,7 +59,7 @@ ConstantPool *ConstantPool::createPool(const BytecodeInstruction *instr) {
 		}
 		start = start + len;
 	}
-	return new ConstantPool(data, strings);
+	return new ConstantPool(data, strings, strCount);
 
 }
 

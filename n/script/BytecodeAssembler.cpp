@@ -61,7 +61,7 @@ BytecodeAssembler::Label BytecodeAssembler::end() const {
 
 
 BytecodeAssembler &BytecodeAssembler::nope() {
-	return ass(BCI(Bytecode::Nope));
+	return ass(BCI(Bytecode::Nop));
 }
 
 BytecodeAssembler &BytecodeAssembler::addI(RegisterType to, RegisterType a, RegisterType b) {
@@ -212,7 +212,7 @@ BytecodeAssembler &BytecodeAssembler::constants(const core::Array<core::String> 
 	for(const core::String &s : strings) {
 		uint j = in.size();
 		for(uint k = 0; k < s.size() + 1; k += sizeof(BCI)) {
-			in << BCI(Bytecode::Nope);
+			in << BCI(Bytecode::Nop);
 		}
 		memcpy(&in[j], s.data(), s.size());
 	}

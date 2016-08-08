@@ -24,7 +24,7 @@ namespace script {
 
 struct FunctionInfo
 {
-	const BytecodeInstruction *ptr;
+	BytecodeInstruction *ptr;
 
 	uint args;
 	uint stackSize;

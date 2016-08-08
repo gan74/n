@@ -24,7 +24,7 @@ namespace script {
 
 enum Bytecode : uint16
 {
-	Nope,
+	Nop,
 
 	Constants,
 
@@ -101,7 +101,7 @@ struct BytecodeInstruction
 	static_assert(2 * sizeof(RegisterType) == sizeof(UnsignedDataType), "Invalid BytecodeInstruction data type");
 	static_assert(2 * sizeof(RegisterType) == sizeof(FloatDataType), "Invalid BytecodeInstruction data type");
 
-	BytecodeInstruction(Bytecode o, RegisterType a = 0, RegisterType b = 0, RegisterType c = 0) : op(o), dst(a), src{b, c} {
+	BytecodeInstruction(Bytecode o = Bytecode::Nop, RegisterType a = 0, RegisterType b = 0, RegisterType c = 0) : op(o), dst(a), src{b, c} {
 	}
 
 	BytecodeInstruction(Bytecode o, RegisterType a, DataType d) : op(o), dst(a), data(d) {
