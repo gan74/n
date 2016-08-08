@@ -29,6 +29,8 @@ class ConstantPool : NonCopyable
 	using c_str = const char *;
 
 	public:
+		~ConstantPool();
+
 		static ConstantPool *createPool(const BytecodeInstruction *instr);
 
 		c_str operator[](uint index) const;

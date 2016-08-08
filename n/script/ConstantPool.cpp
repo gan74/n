@@ -19,6 +19,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace n {
 namespace script {
 
+ConstantPool::~ConstantPool() {
+	delete[] strings;
+	delete[] data;
+}
+
 ConstantPool::c_str ConstantPool::get(uint index) const {
 	return strings[index];
 }
@@ -34,10 +39,13 @@ ConstantPool *ConstantPool::createPool(const BytecodeInstruction *instr) {
 	}
 	uint instrSize = instr->udata;
 	uint strCount = instr->dst;
+
 	char *data = new char[instrSize * sizeof(BytecodeInstruction)];
+	memcpy(data, instr + 1, instrSize * sizeof(BytecodeInstruction));
+
 	c_str *strings = new c_str[strCount];
 
-	const char *start = reinterpret_cast<const char *>(instr + 1);
+	const char *start = data;
 	for(uint i = 0; i != strCount; i++) {
 		strings[i] = start;
 		uint len = strlen(start) + 1;
