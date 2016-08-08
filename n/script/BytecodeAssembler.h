@@ -73,7 +73,7 @@ class BytecodeAssembler
 		BytecodeAssembler &copy(RegisterType to, RegisterType from);
 		BytecodeAssembler &set(RegisterType to, int64 value);
 
-		BytecodeAssembler &newObj(RegisterType to);
+		BytecodeAssembler &newObj(RegisterType to, RegisterType classId);
 
 		BytecodeAssembler &toFloat(RegisterType to, RegisterType from);
 

@@ -14,6 +14,12 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **********************************/
 #include "Machine.h"
+#include "RuntimeObject.h"
+#include <n/core/Set.h>
+#include <n/core/Map.h>
+#include <cstring>
+
+#include <iostream>
 
 namespace n {
 namespace script {
@@ -21,22 +27,37 @@ namespace script {
 Machine::Machine() : argStackTop(new Primitive[1 << 16]) {
 }
 
-Primitive Machine::run(const BytecodeInstruction *bcode, uint memSize) {
+Primitive Machine::run(const char *mainName, uint memSize) {
 	Primitive *memory = new Primitive[memSize];
 	for(uint i = 0; i != memSize; i++) {
 		memory[i].integer = 0;
 	}
 	Primitive ret;
-	run(bcode, memory, memory + 8, &ret);
+
+	const FunctionInfo *main = 0;
+	for(ClassInfo *i : classes) {
+		main = i->find(mainName);
+		if(main) {
+			break;
+		}
+	}
+
+	if(!main) {
+		fatal("main() not found");
+	}
+	run(*main, memory, &ret);
 
 	delete[] memory;
 	return ret;
 }
 
-void Machine::run(const BytecodeInstruction *bcode, Primitive *mem, Primitive *stackTop, Primitive *ret) {
+void Machine::run(FunctionInfo info, Primitive *mem, Primitive *ret) {
+
+	Primitive *stackTop = mem + info.stackSize;
+	const BytecodeInstruction *bcode = info.ptr;
 
 	Primitive tmp;
-	RuntimeFuncInfo &function = RuntimeFuncInfo::error;
+	const FunctionInfo *function = 0;
 
 	for(const BytecodeInstruction *i = bcode;; i++) {
 
@@ -48,7 +69,7 @@ void Machine::run(const BytecodeInstruction *bcode, Primitive *mem, Primitive *s
 			break;
 
 			case Bytecode::Constants:
-				i += i->udata;
+				fatal("Constants in bytecode");
 			break;
 
 			case Bytecode::FuncHead1:
@@ -138,7 +159,8 @@ void Machine::run(const BytecodeInstruction *bcode, Primitive *mem, Primitive *s
 			break;
 
 			case Bytecode::New:
-				m->object = new RuntimeObject(classes.last());
+				std::cout << "new " << getClass(info.constants->get(i->src[1])) << std::endl;
+				m->object = new RuntimeObject(getClass(info.constants->get(i->src[1])));
 			break;
 
 			case Bytecode::ToFloat:
@@ -161,16 +183,20 @@ void Machine::run(const BytecodeInstruction *bcode, Primitive *mem, Primitive *s
 				}
 			break;
 
-			case Bytecode::InvokeVirtual:
+			case Bytecode::CallVirtual:
+				//fatal("callvirt");
 				tmp = *stackTop = mem[i->src[0]];
 				if(!tmp.object) {
 					fatal("nullptr");
 				}
-				/*run(tmp.object->vptr[i->src[1]], stackTop, m);*/
-				function = tmp.object->classInfo->getMethod(i->src[1]);
-				argStackTop -= function.args;
-				memcpy(stackTop + 1, argStackTop, sizeof(Primitive) * function.args);
-				run(function.ptr, stackTop, stackTop + function.stackSize, m);
+				//std::cout << "->" << info.constants->get(i->src[1]) << std::endl;
+				function = tmp.object->classInfo->find(info.constants->get(i->src[1]));
+				if(!function) {
+					fatal("function not found");
+				}
+				argStackTop -= function->args;
+				memcpy(stackTop + 1, argStackTop, sizeof(Primitive) * function->args);
+				run(*function, stackTop, m);
 			break;
 
 			case Bytecode::PushArg:
@@ -194,34 +220,35 @@ void Machine::run(const BytecodeInstruction *bcode, Primitive *mem, Primitive *s
 }
 
 void Machine::load(const BytecodeInstruction *bcode, const BytecodeInstruction *end) {
-	core::Array<core::String> strings;
 	for(const BytecodeInstruction *i = bcode; i != end; i++) {
 		switch(i->op) {
-
 			case Bytecode::FuncHead1: {
+				if(constPools.isEmpty()) {
+					fatal("No constant pool");
+				}
+
 				uint classId = i->dst;
 				uint funcId = i->src[0];
 				uint stack = (i + 1)->dst;
 				uint args = (i + 1)->src[0];
-				//std::cout << strings[classId] << " :: " << strings[funcId] << std::endl;
-				getClass(strings[classId])->vtable << RuntimeFuncInfo{i, args, stack, funcId, strings[funcId]};
+
+				getClass(constPools.last()->get(classId))->functions << FunctionInfo{i, args, stack, constPools.last()->get(funcId), constPools.last()};
+
+				std::cout << "def " << getClass(constPools.last()->get(classId))->name << "." << getClass(constPools.last()->get(classId))->functions.last().name << std::endl;
 			} break;
 
 			case Bytecode::Constants: {
-				const BytecodeInstruction *data = i + 1;
-				while(data != i + i->udata) {
-					core::String string(reinterpret_cast<const char *>(data));
-					uint si = string.size() + 1;
-					data += si / sizeof(BytecodeInstruction);
-					data += !!(si % sizeof(BytecodeInstruction));
-					strings << string;
-				}
+				constPools << ConstantPool::createPool(i);
 				i += i->udata;
 			} break;
 
 			case Bytecode::ClassHead:
-				classes << new RuntimeClassInfo(strings[i->dst]);
-				//std::cout << "class " << classes.last().name << std::endl;
+				if(constPools.isEmpty()) {
+					fatal("No constant pool");
+				}
+
+				classes << new ClassInfo(constPools.last(), i->dst);
+				std::cout << "class " << classes.last()->name << std::endl;
 			break;
 
 			default:
@@ -230,9 +257,10 @@ void Machine::load(const BytecodeInstruction *bcode, const BytecodeInstruction *
 	}
 }
 
-RuntimeClassInfo *Machine::getClass(const core::String &name) {
-	for(RuntimeClassInfo *i : classes) {
-		if(i->name == name) {
+
+ClassInfo *Machine::getClass(const char *name) {
+	for(ClassInfo *i : classes) {
+		if(!strcmp(name, i->name)) {
 			return i;
 		}
 	}

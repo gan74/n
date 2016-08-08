@@ -13,34 +13,34 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **********************************/
-#include "RuntimeClassInfo.h"
+#ifndef N_SCRIPT_CLASSINFO_H
+#define N_SCRIPT_CLASSINFO_H
+
+#include "Bytecode.h"
+#include "FunctionInfo.h"
+#include <n/core/Array.h>
 
 namespace n {
 namespace script {
 
-RuntimeFuncInfo RuntimeFuncInfo::error = RuntimeFuncInfo{0, 0, 0, 0, ""};
-
-RuntimeClassInfo::RuntimeClassInfo(const core::String &n) : name(n) {
-}
-
-const RuntimeFuncInfo &RuntimeClassInfo::getMethod(uint index) const {
-	for(const RuntimeFuncInfo &m : vtable) {
-		if(m.index == index) {
-			return m;
-		}
+struct ClassInfo : NonCopyable
+{
+	ClassInfo() : name(0), constants(0) {
 	}
-	return RuntimeFuncInfo::error;
-}
 
-const RuntimeFuncInfo &RuntimeClassInfo::getMethod(const core::String &n) const {
-	for(const RuntimeFuncInfo &m : vtable) {
-		if(m.name == n) {
-			return m;
-		}
+	ClassInfo(ConstantPool *pool, uint index) : name(pool->get(index)), constants(pool) {
 	}
-	return RuntimeFuncInfo::error;
+
+	const FunctionInfo *find(const char *funcName) const;
+
+	const char *name;
+	ConstantPool *constants;
+
+	core::Array<FunctionInfo> functions;
+
+};
+
+}
 }
 
-
-}
-}
+#endif // N_SCRIPT_CLASSINFO_H

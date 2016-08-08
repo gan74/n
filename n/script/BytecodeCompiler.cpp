@@ -254,7 +254,7 @@ void BytecodeCompiler::compile(Context &context, WTExpression *node) {
 
 
 		case WTNode::New:
-			context.assembler->newObj(node->registerIndex);
+			context.assembler->newObj(node->registerIndex, indexOf(node->expressionType, context.strings));
 		break;
 
 

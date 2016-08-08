@@ -67,7 +67,7 @@ enum Bytecode : uint16
 	JumpZ,
 	JumpNZ,
 
-	InvokeVirtual,
+	CallVirtual,
 
 	PushArg,
 	Ret,

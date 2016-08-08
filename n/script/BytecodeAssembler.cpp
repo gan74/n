@@ -134,8 +134,8 @@ BytecodeAssembler &BytecodeAssembler::set(RegisterType to, int64 value) {
 	return ass(BCI(Bytecode::SetI, to, val));
 }
 
-BytecodeAssembler &BytecodeAssembler::newObj(RegisterType to) {
-	return ass(BCI(Bytecode::New, to));
+BytecodeAssembler &BytecodeAssembler::newObj(RegisterType to, RegisterType classId) {
+	return ass(BCI(Bytecode::New, to, classId));
 }
 
 
@@ -160,7 +160,7 @@ BytecodeAssembler &BytecodeAssembler::jumpZ(RegisterType a, Label to) {
 }
 
 BytecodeAssembler &BytecodeAssembler::callVirtual(RegisterType to, RegisterType obj, RegisterType index) {
-	return ass(BCI(Bytecode::InvokeVirtual, to, obj, index));
+	return ass(BCI(Bytecode::CallVirtual, to, obj, index));
 }
 
 BytecodeAssembler &BytecodeAssembler::pushArg(RegisterType arg) {

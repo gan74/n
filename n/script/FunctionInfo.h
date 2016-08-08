@@ -13,41 +13,31 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **********************************/
-#ifndef N_SCRIPT_RUNTIMECLASSINFO_H
-#define N_SCRIPT_RUNTIMECLASSINFO_H
+#ifndef N_SCRIPT_FUNCTIONINFO_H
+#define N_SCRIPT_FUNCTIONINFO_H
 
 #include "Bytecode.h"
-#include <n/core/String.h>
-#include <n/core/Array.h>
+#include "ConstantPool.h"
 
 namespace n {
 namespace script {
 
-struct RuntimeFuncInfo
+struct FunctionInfo
 {
 	const BytecodeInstruction *ptr;
+
 	uint args;
 	uint stackSize;
-	uint index;
-	core::String name;
+
+	const char *name;
+	ConstantPool *constants;
 
 
-	static RuntimeFuncInfo error;
-};
 
-class RuntimeClassInfo
-{
-	public:
-		RuntimeClassInfo(const core::String &n);
 
-		const RuntimeFuncInfo &getMethod(const core::String &n) const;
-		const RuntimeFuncInfo &getMethod(uint index) const;
-
-		core::String name;
-		core::Array<RuntimeFuncInfo> vtable;
 };
 
 }
 }
 
-#endif // N_SCRIPT_RUNTIMECLASSINFO_H
+#endif // N_SCRIPT_FUNCTIONINFO_H

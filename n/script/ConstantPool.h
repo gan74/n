@@ -13,38 +13,37 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **********************************/
-#ifndef N_SCRIPT_MACHINE_H
-#define N_SCRIPT_MACHINE_H
+#ifndef N_SCRIPT_CONSTANTPOOL_H
+#define N_SCRIPT_CONSTANTPOOL_H
 
-#include "ClassInfo.h"
-#include "ConstantPool.h"
+#include "Bytecode.h"
+#include "RuntimeObject.h"
+#include <n/core/String.h>
+#include <n/core/Array.h>
 
 namespace n {
 namespace script {
 
-class Machine : NonCopyable
+class ConstantPool : NonCopyable
 {
+	using c_str = const char *;
+
 	public:
-		Machine();
+		static ConstantPool *createPool(const BytecodeInstruction *instr);
 
-		void load(const BytecodeInstruction *bcode, const BytecodeInstruction *end);
-
-		Primitive run(const char *mainName = "Int main", uint memSize = 1 << 16);
+		c_str operator[](uint index) const;
+		c_str get(uint index) const;
 
 	private:
-		void run(FunctionInfo info, Primitive *mem, Primitive *ret);
+		ConstantPool(const char *d, const char **strs) : data(d), strings(strs) {
+		}
 
-		ClassInfo *getClass(const char *name);
-
-		Primitive *argStackTop;
-		core::Array<ClassInfo *> classes;
-		core::Array<ConstantPool *> constPools;
-
-
+		const char *data;
+		c_str *strings;
 
 };
 
 }
 }
 
-#endif // N_SCRIPT_MACHINE_H
+#endif // N_SCRIPT_CONSTANTPOOL_H

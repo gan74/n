@@ -16,18 +16,48 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef N_SCRIPT_RUNTIMEOBJECT_H
 #define N_SCRIPT_RUNTIMEOBJECT_H
 
+#include <n/types.h>
+
 namespace n {
 namespace script {
 
-class RuntimeClassInfo;
+class ClassInfo;
+
+/*class VTable
+{
+	public:
+		using Entry = const BytecodeInstruction *;
+
+		VTable(Entry *e = 0) : ptr(e) {
+		}
+
+		Entry operator[](uint index) const {
+			return ptr[index];
+		}
+
+		const RuntimeClassInfo *getClassInfo() const {
+			return reinterpret_cast<const RuntimeClassInfo *>(*(ptr - 1));
+		}
+
+		bool isNull() const {
+			return !ptr || !*ptr;
+		}
+
+		Entry *getPointer() const {
+			return ptr;
+		}
+
+	private:
+		Entry *ptr;
+};*/
 
 class RuntimeObject
 {
 	public:
-		RuntimeObject(const RuntimeClassInfo *c) : classInfo(c) {
+		RuntimeObject(ClassInfo *cl) : classInfo(cl) {
 		}
 
-		const RuntimeClassInfo *classInfo;
+		ClassInfo *classInfo;
 };
 
 }
