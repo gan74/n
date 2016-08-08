@@ -139,7 +139,7 @@ class className { \
 	struct SFINAE<U, true> { \
 		static constexpr bool value = false; \
 	}; \
-	static constexpr bool isPrimitive = !std::is_class<HasMemberType>::value && !std::is_union<HasMemberType>::value; \
+	static constexpr bool isPrimitive = !std::is_class<HasMemberType>::value || std::is_union<HasMemberType>::value; \
 	public: \
 		static constexpr bool value = SFINAE<HasMemberType, isPrimitive>::value; \
 };
