@@ -301,7 +301,7 @@ void Machine::allocFunction(const BytecodeInstruction *begin, const BytecodeInst
 
 ClassInfo *Machine::getClass(const char *name) {
 	for(ClassInfo *i : classes) {
-		if(!strcmp(name, i->name)) {
+		if(name == i->name || !strcmp(name, i->name)) {
 			return i;
 		}
 	}

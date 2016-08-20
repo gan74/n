@@ -11,7 +11,7 @@
 #include <n/script/BytecodeCompiler.h>
 #include <n/script/Machine.h>
 
-
+#include <cstring>
 #include <iostream>
 
 using namespace n;

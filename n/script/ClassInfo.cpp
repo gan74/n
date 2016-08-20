@@ -21,7 +21,7 @@ namespace script {
 
 const FunctionInfo *ClassInfo::find(const char *funcName) const {
 	for(const FunctionInfo &i : functions) {
-		if(!strcmp(funcName, i.name)) {
+		if(funcName == i.name || !strcmp(funcName, i.name)) {
 			return &i;
 		}
 	}

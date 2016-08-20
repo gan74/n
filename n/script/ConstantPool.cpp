@@ -44,8 +44,8 @@ ConstantPool *ConstantPool::createPool(const BytecodeInstruction *instr) {
 	uint instrSize = instr->udata;
 	uint strCount = instr->dst;
 
-	char *data = new char[instrSize * sizeof(BytecodeInstruction)];
-	memcpy(data, instr + 1, instrSize * sizeof(BytecodeInstruction));
+	char *data = new char[(instrSize - 1) * sizeof(BytecodeInstruction)];
+	memcpy(data, instr + 1, (instrSize - 1) * sizeof(BytecodeInstruction));
 
 	c_str *strings = new c_str[strCount];
 
